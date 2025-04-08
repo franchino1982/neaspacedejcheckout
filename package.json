@@ -1,5 +1,5 @@
 {
-  "name": "neaspace-checkout",
+  "name": "neaspacedejcheckout",
   "version": "1.0.0",
   "main": "server.js",
   "type": "module",
