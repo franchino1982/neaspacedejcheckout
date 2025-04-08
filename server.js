@@ -2,7 +2,7 @@ const express = require('express');
 const Stripe = require('stripe');
 const cors = require('cors');
 
-const stripe = Stripe('sk_test_QUI_METTI_LA_TUA_CHIAVE_PRIVATA'); // <-- sostituiscila!
+const stripe = Stripe('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'); // <-- sostituiscila!
 
 const app = express();
 app.use(cors());
