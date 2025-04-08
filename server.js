@@ -1,7 +1,8 @@
-# Salviamo la versione aggiornata di server.js con il fix per il valore dinamico di Stripe
 from pathlib import Path
 
+# Codice corretto con commenti validi per JavaScript
 server_code = """
+// Salviamo la versione aggiornata di server.js con il fix per il valore dinamico di Stripe
 const express = require('express');
 const Stripe = require('stripe');
 const cors = require('cors');
@@ -88,7 +89,7 @@ app.post('/webhook', express.raw({ type: 'application/json' }), async (req, res)
       from: 'Neaspace <design@francescorossi.co>',
       to: 'design@francescorossi.co, boulangerie@gmail.com',
       subject: '✅ Ordine confermato',
-      text: message.replace(/\*/g, ''),
+      text: message.replace(/\\*/g, ''),
     };
 
     transporter.sendMail(mailOptions, (error, info) => {
@@ -116,6 +117,7 @@ const PORT = process.env.PORT || 4242;
 app.listen(PORT, () => console.log(`✅ Backend in ascolto su porta ${PORT}`));
 """
 
+# Scrive il file su /mnt/data/server.js
 backend_file = Path("/mnt/data/server.js")
 backend_file.write_text(server_code, encoding='utf-8')
 backend_file
