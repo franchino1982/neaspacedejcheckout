@@ -4,7 +4,7 @@ const cors = require('cors');
 const nodemailer = require('nodemailer');
 const axios = require('axios');
 
-const stripe = Stripe('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');
+const stripe = Stripe('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');
 const TELEGRAM_TOKEN = '8176119113:AAFLpCf4Wtm3aGmcog_JWALYwEol2TjOVMQ';
 const TELEGRAM_CHAT_ID = '1654425542';
 
