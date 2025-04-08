@@ -1,8 +1,3 @@
-from pathlib import Path
-
-# Codice corretto con commenti validi per JavaScript
-server_code = """
-// Salviamo la versione aggiornata di server.js con il fix per il valore dinamico di Stripe
 const express = require('express');
 const Stripe = require('stripe');
 const cors = require('cors');
@@ -15,13 +10,13 @@ const endpointSecret = 'whsec_7J80mRaCKhUmVb9EmtY3KjFZiLfw2QFP';
 const TELEGRAM_TOKEN = '8176119113:AAFLpCf4Wtm3aGmcog_JWALYwEol2TjOVMQ';
 const TELEGRAM_CHAT_ID = '1654425542';
 
-const orders = {}; // per memorizzare temporaneamente gli ordini
+const orders = {};
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-// ✅ CREA SESSIONE STRIPE E SALVA ORDINE
+// ✅ CREA SESSIONE STRIPE
 app.post('/create-checkout-session', async (req, res) => {
   const { total, orderDetails } = req.body;
 
@@ -43,7 +38,6 @@ app.post('/create-checkout-session', async (req, res) => {
       cancel_url: 'https://neaspace.com/cancel.html',
     });
 
-    // salva i dettagli dell'ordine
     orders[session.id] = { total, orderDetails };
     res.json({ url: session.url });
   } catch (err) {
@@ -52,10 +46,9 @@ app.post('/create-checkout-session', async (req, res) => {
   }
 });
 
-// ✅ WEBHOOK STRIPE - DOPO PAGAMENTO
+// ✅ WEBHOOK STRIPE
 app.post('/webhook', express.raw({ type: 'application/json' }), async (req, res) => {
   const sig = req.headers['stripe-signature'];
-
   let event;
 
   try {
@@ -76,7 +69,7 @@ app.post('/webhook', express.raw({ type: 'application/json' }), async (req, res)
 
     const message = `📦 *Nuovo ordine Neaspace!*\n\n${order.orderDetails}\n\n💰 Total: ${order.total.toFixed(2)} €`;
 
-    // 📩 Email
+    // EMAIL
     const transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
@@ -89,7 +82,7 @@ app.post('/webhook', express.raw({ type: 'application/json' }), async (req, res)
       from: 'Neaspace <design@francescorossi.co>',
       to: 'design@francescorossi.co, boulangerie@gmail.com',
       subject: '✅ Ordine confermato',
-      text: message.replace(/\\*/g, ''),
+      text: message.replace(/\*/g, ''),
     };
 
     transporter.sendMail(mailOptions, (error, info) => {
@@ -100,7 +93,7 @@ app.post('/webhook', express.raw({ type: 'application/json' }), async (req, res)
       }
     });
 
-    // 📲 Telegram
+    // TELEGRAM
     await axios.post(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`, {
       chat_id: TELEGRAM_CHAT_ID,
       text: message,
@@ -115,9 +108,3 @@ app.post('/webhook', express.raw({ type: 'application/json' }), async (req, res)
 
 const PORT = process.env.PORT || 4242;
 app.listen(PORT, () => console.log(`✅ Backend in ascolto su porta ${PORT}`));
-"""
-
-# Scrive il file su /mnt/data/server.js
-backend_file = Path("/mnt/data/server.js")
-backend_file.write_text(server_code, encoding='utf-8')
-backend_file
