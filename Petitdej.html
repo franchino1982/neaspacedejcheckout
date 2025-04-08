@@ -1,0 +1,256 @@
+  <meta charset="UTF-8">
+  <title>Votre petit-déjeuner à Neaspace</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body { font-family: Arial, sans-serif; background-color: #f7f7f7; margin: 0; padding: 20px; }
+    h1 { text-align: center; color: #444; }
+    .menu-container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+    .formule { margin-bottom: 30px; border-bottom: 1px solid #ccc; padding-bottom: 20px; position: relative; }
+    .formule h3 { color: #333; margin-top: 0; }
+    label { display: block; margin-top: 10px; }
+    input[type="number"], select, input[type="date"] {
+      width: 100%; padding: 8px; margin-top: 5px;
+      border: 1px solid #ccc; border-radius: 5px;
+    }
+    button {
+      padding: 15px; background-color: #0077cc;
+      color: white; border: none;
+      border-radius: 10px; font-size: 16px;
+      cursor: pointer; margin-top: 20px;
+    }
+    button:hover { background-color: #005fa3; }
+    img { max-width: 100%; border-radius: 10px; margin: 10px 0; }
+    #orderSummary {
+      background: #eee; padding: 10px;
+      margin-top: 20px; border-radius: 5px;
+      white-space: pre-line;
+    }
+    .remove-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: red;
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 14px;
+    }
+  </style>
+
+
+  <div class="menu-container">
+    <button onclick="location.reload()" style="float:right; border:none; background:none; cursor:pointer;">🔄 Recommencer</button>
+    <h1>Votre petit-déjeuner à Neaspace</h1>
+
+    <form id="orderForm">
+      <label>Date de livraison:
+        <input type="date" name="delivery_date" required="">
+      </label>
+
+      <label>Heure de livraison souhaitée:
+        <select name="delivery_time" required="">
+          <option value="">-- Sélectionnez --</option>
+          <option value="07:30">07:30</option>
+          <option value="08:00">08:00</option>
+          <option value="08:30">08:30</option>
+          <option value="09:00">09:00</option>
+          <option value="09:30">09:30</option>
+          <option value="10:00">10:00</option>
+        </select>
+      </label>
+
+      <div id="classiqueContainer">
+        <h2>Formules Classiques – 1 €</h2>
+      </div>
+      <button type="button" onclick="addFormule('classique')">+ Ajouter une formule Classique</button>
+
+      <div id="gourmandeContainer">
+        <h2>Formules Gourmandes – 1 €</h2>
+      </div>
+      <button type="button" onclick="addFormule('gourmande')">+ Ajouter une formule Gourmande</button>
+
+      <div class="formule">
+        <h2>Suppléments</h2>
+        <label>Eau plate (1 €):
+          <input type="number" name="addon_water_still" min="0" max="5" value="0">
+        </label>
+        <label>Eau gazeuse (1 €):
+          <input type="number" name="addon_water_sparkling" min="0" max="5" value="0">
+        </label>
+      </div>
+
+      <button type="button" onclick="generateSummary()">🧺 Ajouter au panier</button>
+      <div id="orderSummary" style="display:none"></div>
+      <button type="submit">✅ Paiement</button>
+    </form>
+  </div>
+
+  <script>
+    const classiqueHTML = `
+      <div class="formule">
+        <button type="button" class="remove-btn" onclick="this.parentElement.remove()">−</button>
+        <img src="https://media.istockphoto.com/photos/coffee-cup-with-croissant-and-orange-juice-picture-id973357440?k=20&m=973357440&s=612x612&w=0&h=2ePj9iuE0rnE-t-3G2-u2IY-M08DO3FaS4-OAdevYfI=" alt="Formule Classique">
+        <label>Choix de la viennoiserie:
+          <select name="classique_viennoiserie[]">
+            <option value="">-- Sélectionnez --</option>
+            <option value="Croissant">Croissant</option>
+            <option value="Pain au chocolat">Pain au chocolat</option>
+            <option value="Pain aux raisins">Pain aux raisins</option>
+          </select>
+        </label>
+        <label>Boisson chaude:
+          <select name="classique_boisson[]">
+            <option value="">-- Sélectionnez --</option>
+            <option value="Café">Café</option>
+            <option value="Thé">Thé</option>
+            <option value="Chocolat chaud">Chocolat chaud</option>
+          </select>
+        </label>
+      </div>`;
+
+    const gourmandeHTML = `
+      <div class="formule">
+        <button type="button" class="remove-btn" onclick="this.parentElement.remove()">−</button>
+        <img src="https://images.squarespace-cdn.com/content/v1/60e9e30ce702513746074249/1628275363317-XH0491WYBH17DURDCDWB/1111111.jpg?format=2500w" alt="Formule Gourmande">
+        <label>Choix de la viennoiserie:
+          <select name="gourmande_viennoiserie[]">
+            <option value="">-- Sélectionnez --</option>
+            <option value="Croissant">Croissant</option>
+            <option value="Pain au chocolat">Pain au chocolat</option>
+            <option value="Pain aux raisins">Pain aux raisins</option>
+          </select>
+        </label>
+        <label>Fromage ou œuf dur:
+          <select name="gourmande_savory[]">
+            <option value="">-- Sélectionnez --</option>
+            <option value="Fromage">Fromage</option>
+            <option value="Œuf dur">Œuf dur</option>
+          </select>
+        </label>
+        <label>Boisson chaude:
+          <select name="gourmande_boisson[]">
+            <option value="">-- Sélectionnez --</option>
+            <option value="Café">Café</option>
+            <option value="Thé">Thé</option>
+            <option value="Chocolat chaud">Chocolat chaud</option>
+          </select>
+        </label>
+      </div>`;
+
+    function addFormule(type) {
+      const container = document.getElementById(type + 'Container');
+      container.insertAdjacentHTML('beforeend', type === 'classique' ? classiqueHTML : gourmandeHTML);
+    }
+
+    function generateSummary() {
+      const date = document.querySelector('[name="delivery_date"]').value;
+      const time = document.querySelector('[name="delivery_time"]').value;
+      let summary = `📅 Livraison prévue le ${date} à ${time}
+
+`;
+      let total = 0;
+
+      const v = document.querySelectorAll('[name="classique_viennoiserie[]"]');
+      const b = document.querySelectorAll('[name="classique_boisson[]"]');
+      v.forEach((_, i) => {
+        if (v[i].value && b[i].value) {
+          summary += `Formule Classique: ${v[i].value}, ${b[i].value}
+`;
+          total += 1;
+        }
+      });
+
+      const gv = document.querySelectorAll('[name="gourmande_viennoiserie[]"]');
+      const gs = document.querySelectorAll('[name="gourmande_savory[]"]');
+      const gb = document.querySelectorAll('[name="gourmande_boisson[]"]');
+      gv.forEach((_, i) => {
+        if (gv[i].value && gs[i].value && gb[i].value) {
+          summary += `Formule Gourmande: ${gv[i].value}, ${gs[i].value}, ${gb[i].value}
+`;
+          total += 1;
+        }
+      });
+
+      const still = parseInt(document.querySelector('[name="addon_water_still"]').value || 0);
+      const sparkling = parseInt(document.querySelector('[name="addon_water_sparkling"]').value || 0);
+      if (still > 0 || sparkling > 0) {
+        summary += `Suppléments: Eau plate x${still}, Eau gazeuse x${sparkling}
+`;
+        total += still + sparkling;
+      }
+
+      summary += `
+💰 Total: ${total.toFixed(2)} €`;
+      document.getElementById("orderSummary").style.display = 'block';
+      document.getElementById("orderSummary").textContent = summary;
+    }
+
+    document.getElementById("orderForm").addEventListener("submit", function(e) {
+  e.preventDefault();
+
+  const date = document.querySelector('[name="delivery_date"]').value;
+  const time = document.querySelector('[name="delivery_time"]').value;
+  let orderDetails = `📅 Livraison prévue le ${date} à ${time}\n\n`;
+  let total = 0;
+
+  // CLASSIQUE
+  const classiques = document.querySelectorAll('[name="classique_viennoiserie[]"]');
+  classiques.forEach((el, i) => {
+    const viennoiserie = el.value;
+    const boisson = document.querySelectorAll('[name="classique_boisson[]"]')[i]?.value;
+    if (viennoiserie && boisson) {
+      orderDetails += `Formule Classique ${i + 1}: ${viennoiserie}, ${boisson}\n`;
+      total += 1;
+    }
+  });
+
+  // GOURMANDE
+  const gourmandes = document.querySelectorAll('[name="gourmande_viennoiserie[]"]');
+  gourmandes.forEach((el, i) => {
+    const viennoiserie = el.value;
+    const savory = document.querySelectorAll('[name="gourmande_savory[]"]')[i]?.value;
+    const boisson = document.querySelectorAll('[name="gourmande_boisson[]"]')[i]?.value;
+    if (viennoiserie && savory && boisson) {
+      orderDetails += `Formule Gourmande ${i + 1}: ${viennoiserie}, ${savory}, ${boisson}\n`;
+      total += 1;
+    }
+  });
+
+  // SUPPLÉMENTS
+  const eauPlate = parseInt(document.querySelector('[name="addon_water_still"]')?.value || 0);
+  const eauGazeuse = parseInt(document.querySelector('[name="addon_water_sparkling"]')?.value || 0);
+  if (eauPlate > 0 || eauGazeuse > 0) {
+    orderDetails += `Suppléments: Eau plate x${eauPlate}, Eau gazeuse x${eauGazeuse}\n`;
+    total += eauPlate + eauGazeuse;
+  }
+
+  orderDetails += `\n💰 Total: ${total.toFixed(2)} €`;
+
+  if (total === 0) {
+    alert("Veuillez sélectionner au moins un article.");
+    return;
+  }
+
+  // ✅ INVIA A STRIPE IL VALORE TOTALE GIUSTO
+  fetch('https://neaspacedejcheckout.onrender.com/create-checkout-session', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ total, orderDetails })
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.url) {
+      window.location.href = data.url;
+    } else {
+      alert("❌ Erreur: Pas de lien de paiement reçu.");
+    }
+  })
+  .catch(err => {
+    console.error("❌ Erreur Stripe:", err);
+    alert("❌ Une erreur est survenue lors du paiement.");
+  });
+});
+
+  </script>
