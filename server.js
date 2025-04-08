@@ -1,3 +1,4 @@
+
 const express = require('express');
 const Stripe = require('stripe');
 const cors = require('cors');
@@ -8,13 +9,13 @@ const stripe = Stripe('sk_live_51MNMQ4CiesUDy3vaA5fPaeL7q1w8u9vZx1Uw7VuZQjKEaxot
 const TELEGRAM_TOKEN = '8176119113:AAFLpCf4Wtm3aGmcog_JWALYwEol2TjOVMQ';
 const TELEGRAM_CHAT_ID = '1654425542';
 
-const orders = {}; // Temporarily store orders
+const orders = {}; // per memorizzare temporaneamente gli ordini
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-// ✅ CREA SESSIONE STRIPE
+// ✅ CREA SESSIONE STRIPE E SALVA ORDINE
 app.post('/create-checkout-session', async (req, res) => {
   const { total, orderDetails } = req.body;
 
@@ -24,8 +25,10 @@ app.post('/create-checkout-session', async (req, res) => {
       line_items: [{
         price_data: {
           currency: 'eur',
-          product_data: { name: 'Petit-déjeuner Neaspace' },
-          unit_amount: Math.round(total * 100), // esempio 1€ -> 100 cent
+          product_data: {
+            name: 'Petit-déjeuner Neaspace',
+          },
+          unit_amount: Math.round(total * 100),
         },
         quantity: 1,
       }],
@@ -34,38 +37,45 @@ app.post('/create-checkout-session', async (req, res) => {
       cancel_url: 'https://neaspace.com/cancel.html',
     });
 
+    // salva i dettagli dell'ordine
     orders[session.id] = { total, orderDetails };
     res.json({ url: session.url });
-  } catch (error) {
-    console.error('Errore creazione sessione Stripe:', error.message);
-    res.status(500).json({ error: 'Erreur: Pas de lien de paiement reçu.' });
+  } catch (err) {
+    console.error('❌ Errore creazione sessione Stripe:', err.message);
+    res.status(500).json({ error: 'Errore creazione sessione Stripe' });
   }
 });
 
-// ✅ WEBHOOK DOPO PAGAMENTO
+// ✅ WEBHOOK STRIPE - DOPO PAGAMENTO
 app.post('/webhook', express.raw({ type: 'application/json' }), async (req, res) => {
   const sig = req.headers['stripe-signature'];
   const endpointSecret = 'whsec_7J80mRaCKhUmVb9EmtY3KjFZiLfw2QFP';
 
   let event;
+
   try {
     event = stripe.webhooks.constructEvent(req.body, sig, endpointSecret);
   } catch (err) {
-    console.error('⚠️ Webhook verification failed:', err.message);
+    console.error('⚠️ Verifica webhook fallita:', err.message);
     return res.sendStatus(400);
   }
 
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object;
     const order = orders[session.id];
+
     if (!order) {
-      console.error('❌ Ordine non trovato:', session.id);
+      console.error('Ordine non trovato per session:', session.id);
       return res.sendStatus(404);
     }
 
-    const message = `📦 *Nouvelle commande Neaspace !*\n\n${order.orderDetails}\n💰 Total: ${order.total.toFixed(2)} €`;
+    const message = `📦 *Nuovo ordine Neaspace!*
 
-    // ✅ Email
+${order.orderDetails}
+
+💰 Total: ${order.total.toFixed(2)} €`;
+
+    // 📩 Email
     const transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
@@ -77,16 +87,19 @@ app.post('/webhook', express.raw({ type: 'application/json' }), async (req, res)
     const mailOptions = {
       from: 'Neaspace <design@francescorossi.co>',
       to: 'design@francescorossi.co, boulangerie@gmail.com',
-      subject: '✅ Nouvelle commande petit-déjeuner',
-      text: message.replace(/\*/g, ''), // rimuovi markdown
+      subject: '✅ Ordine confermato',
+      text: message.replace(/\*/g, ''),
     };
 
     transporter.sendMail(mailOptions, (error, info) => {
-      if (error) console.error('❌ Email non inviata:', error.message);
-      else console.log('📧 Email inviata:', info.response);
+      if (error) {
+        console.error('Errore invio email:', error);
+      } else {
+        console.log('Email inviata:', info.response);
+      }
     });
 
-    // ✅ Telegram
+    // 📲 Telegram
     await axios.post(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`, {
       chat_id: TELEGRAM_CHAT_ID,
       text: message,
@@ -100,4 +113,4 @@ app.post('/webhook', express.raw({ type: 'application/json' }), async (req, res)
 });
 
 const PORT = process.env.PORT || 4242;
-app.listen(PORT, () => console.log(`🚀 Backend attivo su porta ${PORT}`));
+app.listen(PORT, () => console.log(`✅ Backend in ascolto su porta ${PORT}`));
