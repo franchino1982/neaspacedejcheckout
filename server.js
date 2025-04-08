@@ -1,4 +1,7 @@
+# Salviamo la versione aggiornata di server.js con il fix per il valore dinamico di Stripe
+from pathlib import Path
 
+server_code = """
 const express = require('express');
 const Stripe = require('stripe');
 const cors = require('cors');
@@ -69,11 +72,7 @@ app.post('/webhook', express.raw({ type: 'application/json' }), async (req, res)
       return res.sendStatus(404);
     }
 
-    const message = `📦 *Nuovo ordine Neaspace!*
-
-${order.orderDetails}
-
-💰 Total: ${order.total.toFixed(2)} €`;
+    const message = `📦 *Nuovo ordine Neaspace!*\n\n${order.orderDetails}\n\n💰 Total: ${order.total.toFixed(2)} €`;
 
     // 📩 Email
     const transporter = nodemailer.createTransport({
@@ -114,3 +113,8 @@ ${order.orderDetails}
 
 const PORT = process.env.PORT || 4242;
 app.listen(PORT, () => console.log(`✅ Backend in ascolto su porta ${PORT}`));
+"""
+
+backend_file = Path("/mnt/data/server.js")
+backend_file.write_text(server_code, encoding='utf-8')
+backend_file
