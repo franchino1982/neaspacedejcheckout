@@ -54,7 +54,6 @@ app.post('/create-checkout-session', async (req, res) => {
 // ✅ WEBHOOK STRIPE - DOPO PAGAMENTO
 app.post('/webhook', express.raw({ type: 'application/json' }), async (req, res) => {
   const sig = req.headers['stripe-signature'];
-  const endpointSecret = 'whsec_7J80mRaCKhUmVb9EmtY3KjFZiLfw2QFP';
 
   let event;
 
