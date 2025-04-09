@@ -4,20 +4,18 @@ const cors = require('cors');
 const nodemailer = require('nodemailer');
 const axios = require('axios');
 
-// ✅ Stripe keys
+// ✅ Chiavi Stripe live
 const stripe = Stripe('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');
 const endpointSecret = 'whsec_7J80mRaCKhUmVb9EmtY3KjFZiLfw2QFP';
 
-// ✅ Telegram
+// ✅ Telegram bot
 const TELEGRAM_TOKEN = '8176119113:AAFLpCf4Wtm3aGmcog_JWALYwEol2TjOVMQ';
 const TELEGRAM_CHAT_ID = '1654425542';
-
-const orders = {};
 
 const app = express();
 app.use(cors());
 
-// ✅ ATTENZIONE! express.raw SOLO per il webhook
+// ✅ Webhook Stripe (solo raw!)
 app.post('/webhook', express.raw({ type: 'application/json' }), async (req, res) => {
   const sig = req.headers['stripe-signature'];
   let event;
@@ -32,16 +30,14 @@ app.post('/webhook', express.raw({ type: 'application/json' }), async (req, res)
 
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object;
-    const order = orders[session.id];
 
-    if (!order) {
-      console.error('⚠️ Nessun ordine trovato per la sessione:', session.id);
-      return res.sendStatus(404);
-    }
+    // ✅ Recupera dai metadata
+    const orderDetails = session.metadata.orderDetails;
+    const total = session.metadata.total;
 
-    const message = `📦 *Nuovo ordine Neaspace!*\n\n${order.orderDetails}\n\n💰 Total: ${order.total.toFixed(2)} €`;
+    const message = `📦 *Nuovo ordine Neaspace!*\n\n${orderDetails}\n\n💰 Total: ${total} €`;
 
-    // Invia Email
+    // ✅ Invia Email
     const transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
@@ -65,23 +61,21 @@ app.post('/webhook', express.raw({ type: 'application/json' }), async (req, res)
       }
     });
 
-    // Invia Telegram
+    // ✅ Invia Telegram
     await axios.post(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`, {
       chat_id: TELEGRAM_CHAT_ID,
       text: message,
       parse_mode: 'Markdown'
     });
-
-    delete orders[session.id];
   }
 
   res.sendStatus(200);
 });
 
-// ✅ JSON normale SOLO dopo il webhook
+// ✅ Per tutte le altre rotte (POST JSON normale)
 app.use(express.json());
 
-// ✅ Crea sessione Stripe
+// ✅ Crea la sessione Stripe
 app.post('/create-checkout-session', async (req, res) => {
   const { total, orderDetails } = req.body;
 
@@ -101,9 +95,12 @@ app.post('/create-checkout-session', async (req, res) => {
       mode: 'payment',
       success_url: 'https://franchino1982.github.io/neaspacedejcheckout/success.html',
       cancel_url: 'https://franchino1982.github.io/neaspacedejcheckout/cancel.html',
+      metadata: {
+        orderDetails,
+        total: total.toFixed(2)
+      }
     });
 
-    orders[session.id] = { total, orderDetails };
     res.json({ url: session.url });
   } catch (err) {
     console.error('❌ Errore creazione sessione Stripe:', err.message);
