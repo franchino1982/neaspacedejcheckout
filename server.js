@@ -39,12 +39,12 @@ app.post('/webhook', express.raw({ type: 'application/json' }), async (req, res)
 
     // ✅ Invia Email
     const transporter = nodemailer.createTransport({
-      service: 'gmail',
-      auth: {
-        user: 'design@francescorossi.co',
-        pass: 'privilegeyard'
-      }
-    });
+  service: 'gmail',
+  auth: {
+    user: '19rueneuve@gmail.com',
+    pass: 'mgbxsluutamptoqw' // ✅ password per app Gmail
+  }
+});
 
     const mailOptions = {
       from: 'Neaspace <design@francescorossi.co>',
