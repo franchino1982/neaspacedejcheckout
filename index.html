@@ -1,3 +1,6 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
   <meta charset="UTF-8">
   <title>Votre petit-déjeuner à Neaspace</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -38,19 +41,19 @@
       font-size: 14px;
     }
   </style>
-
-
+</head>
+<body>
   <div class="menu-container">
     <button onclick="location.reload()" style="float:right; border:none; background:none; cursor:pointer;">🔄 Recommencer</button>
     <h1>Votre petit-déjeuner à Neaspace</h1>
 
     <form id="orderForm">
       <label>Date de livraison:
-        <input type="date" name="delivery_date" required="">
+        <input type="date" name="delivery_date" required>
       </label>
 
       <label>Heure de livraison souhaitée:
-        <select name="delivery_time" required="">
+        <select name="delivery_time" required>
           <option value="">-- Sélectionnez --</option>
           <option value="07:30">07:30</option>
           <option value="08:00">08:00</option>
@@ -147,17 +150,14 @@
     function generateSummary() {
       const date = document.querySelector('[name="delivery_date"]').value;
       const time = document.querySelector('[name="delivery_time"]').value;
-      let summary = `📅 Livraison prévue le ${date} à ${time}
-
-`;
+      let summary = `📅 Livraison prévue le ${date} à ${time}\n\n`;
       let total = 0;
 
       const v = document.querySelectorAll('[name="classique_viennoiserie[]"]');
       const b = document.querySelectorAll('[name="classique_boisson[]"]');
       v.forEach((_, i) => {
         if (v[i].value && b[i].value) {
-          summary += `Formule Classique: ${v[i].value}, ${b[i].value}
-`;
+          summary += `Formule Classique: ${v[i].value}, ${b[i].value}\n`;
           total += 1;
         }
       });
@@ -167,8 +167,7 @@
       const gb = document.querySelectorAll('[name="gourmande_boisson[]"]');
       gv.forEach((_, i) => {
         if (gv[i].value && gs[i].value && gb[i].value) {
-          summary += `Formule Gourmande: ${gv[i].value}, ${gs[i].value}, ${gb[i].value}
-`;
+          summary += `Formule Gourmande: ${gv[i].value}, ${gs[i].value}, ${gb[i].value}\n`;
           total += 1;
         }
       });
@@ -176,81 +175,47 @@
       const still = parseInt(document.querySelector('[name="addon_water_still"]').value || 0);
       const sparkling = parseInt(document.querySelector('[name="addon_water_sparkling"]').value || 0);
       if (still > 0 || sparkling > 0) {
-        summary += `Suppléments: Eau plate x${still}, Eau gazeuse x${sparkling}
-`;
+        summary += `Suppléments: Eau plate x${still}, Eau gazeuse x${sparkling}\n`;
         total += still + sparkling;
       }
 
-      summary += `
-💰 Total: ${total.toFixed(2)} €`;
+      summary += `\n💰 Total: ${total.toFixed(2)} €`;
       document.getElementById("orderSummary").style.display = 'block';
       document.getElementById("orderSummary").textContent = summary;
     }
 
     document.getElementById("orderForm").addEventListener("submit", function(e) {
-  e.preventDefault();
+      e.preventDefault();
 
-  const date = document.querySelector('[name="delivery_date"]').value;
-  const time = document.querySelector('[name="delivery_time"]').value;
-  let orderDetails = `📅 Livraison prévue le ${date} à ${time}\n\n`;
-  let total = 0;
+      generateSummary(); // aggiorna sempre il riepilogo
+      const summary = document.getElementById("orderSummary").textContent;
+      const totalMatch = summary.match(/Total: ([\d.,]+)/);
+      const total = totalMatch ? parseFloat(totalMatch[1].replace(',', '.')) : 0;
+      const orderDetails = summary;
 
-  // CLASSIQUE
-  const classiques = document.querySelectorAll('[name="classique_viennoiserie[]"]');
-  classiques.forEach((el, i) => {
-    const viennoiserie = el.value;
-    const boisson = document.querySelectorAll('[name="classique_boisson[]"]')[i]?.value;
-    if (viennoiserie && boisson) {
-      orderDetails += `Formule Classique ${i + 1}: ${viennoiserie}, ${boisson}\n`;
-      total += 1;
-    }
-  });
+      if (total === 0) {
+        alert("Veuillez sélectionner au moins un article.");
+        return;
+      }
 
-  // GOURMANDE
-  const gourmandes = document.querySelectorAll('[name="gourmande_viennoiserie[]"]');
-  gourmandes.forEach((el, i) => {
-    const viennoiserie = el.value;
-    const savory = document.querySelectorAll('[name="gourmande_savory[]"]')[i]?.value;
-    const boisson = document.querySelectorAll('[name="gourmande_boisson[]"]')[i]?.value;
-    if (viennoiserie && savory && boisson) {
-      orderDetails += `Formule Gourmande ${i + 1}: ${viennoiserie}, ${savory}, ${boisson}\n`;
-      total += 1;
-    }
-  });
-
-  // SUPPLÉMENTS
-  const eauPlate = parseInt(document.querySelector('[name="addon_water_still"]')?.value || 0);
-  const eauGazeuse = parseInt(document.querySelector('[name="addon_water_sparkling"]')?.value || 0);
-  if (eauPlate > 0 || eauGazeuse > 0) {
-    orderDetails += `Suppléments: Eau plate x${eauPlate}, Eau gazeuse x${eauGazeuse}\n`;
-    total += eauPlate + eauGazeuse;
-  }
-
-  orderDetails += `\n💰 Total: ${total.toFixed(2)} €`;
-
-  if (total === 0) {
-    alert("Veuillez sélectionner au moins un article.");
-    return;
-  }
-
-  // ✅ INVIA A STRIPE IL VALORE TOTALE GIUSTO
-  fetch('https://neaspacedejcheckout.onrender.com/create-checkout-session', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ total, orderDetails })
-  })
-  .then(res => res.json())
-  .then(data => {
-    if (data.url) {
-      window.location.href = data.url;
-    } else {
-      alert("❌ Erreur: Pas de lien de paiement reçu.");
-    }
-  })
-  .catch(err => {
-    console.error("❌ Erreur Stripe:", err);
-    alert("❌ Une erreur est survenue lors du paiement.");
-  });
-});
-
+      fetch('https://neaspacedejcheckout.onrender.com/create-checkout-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ total, orderDetails })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.url) {
+          window.location.href = data.url;
+        } else {
+          alert("❌ Erreur: Pas de lien de paiement reçu.");
+        }
+      })
+      .catch(err => {
+        console.error("❌ Erreur Stripe:", err);
+        alert("❌ Une erreur est survenue lors du paiement.");
+      });
+    });
   </script>
+</body>
+</html>
