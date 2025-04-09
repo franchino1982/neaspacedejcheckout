@@ -4,20 +4,18 @@ const cors = require('cors');
 const nodemailer = require('nodemailer');
 const axios = require('axios');
 
-// ✅ CHIAVI STRIPE
 const stripe = Stripe('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');
 const endpointSecret = 'whsec_7J80mRaCKhUmVb9EmtY3KjFZiLfw2QFP';
 
-// ✅ TELEGRAM
 const TELEGRAM_TOKEN = '8176119113:AAFLpCf4Wtm3aGmcog_JWALYwEol2TjOVMQ';
 const TELEGRAM_CHAT_ID = '1654425542';
 
-const orders = {}; // Ordini temporanei
+const orders = {};
 
 const app = express();
 app.use(cors());
 
-// ✅ WEBHOOK STRIPE – RAW BODY REQUIRED
+// ✅ Webhook con corpo RAW — DEVE venire prima di express.json()
 app.post('/webhook', express.raw({ type: 'application/json' }), async (req, res) => {
   const sig = req.headers['stripe-signature'];
   let event;
@@ -41,7 +39,7 @@ app.post('/webhook', express.raw({ type: 'application/json' }), async (req, res)
 
     const message = `📦 *Nuovo ordine Neaspace!*\n\n${order.orderDetails}\n\n💰 Total: ${order.total.toFixed(2)} €`;
 
-    // ✅ EMAIL
+    // 📧 Invia email
     const transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
@@ -65,7 +63,7 @@ app.post('/webhook', express.raw({ type: 'application/json' }), async (req, res)
       }
     });
 
-    // ✅ TELEGRAM
+    // 📲 Invia su Telegram
     await axios.post(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`, {
       chat_id: TELEGRAM_CHAT_ID,
       text: message,
@@ -78,10 +76,10 @@ app.post('/webhook', express.raw({ type: 'application/json' }), async (req, res)
   res.sendStatus(200);
 });
 
-// ✅ SOLO ORA USIAMO express.json() PER IL RESTO
+// ✅ Tutto il resto usa JSON normale
 app.use(express.json());
 
-// ✅ CREA SESSIONE STRIPE
+// ✅ Crea sessione Stripe
 app.post('/create-checkout-session', async (req, res) => {
   const { total, orderDetails } = req.body;
 
@@ -111,6 +109,6 @@ app.post('/create-checkout-session', async (req, res) => {
   }
 });
 
-// ✅ AVVIO SERVER
+// ✅ Avvio server
 const PORT = process.env.PORT || 4242;
 app.listen(PORT, () => console.log(`🚀 Backend attivo su http://localhost:${PORT}`));
