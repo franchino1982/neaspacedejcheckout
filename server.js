@@ -99,8 +99,8 @@ app.post('/create-checkout-session', async (req, res) => {
         quantity: 1,
       }],
       mode: 'payment',
-      success_url: 'https://neaspace.com/success.html',
-      cancel_url: 'https://neaspace.com/cancel.html',
+      success_url: 'https://franchino1982.github.io/neaspacedejcheckout/success.html',
+      cancel_url: 'https://franchino1982.github.io/neaspacedejcheckout/cancel.html',
     });
 
     orders[session.id] = { total, orderDetails };
