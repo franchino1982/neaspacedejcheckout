@@ -4,23 +4,84 @@ const cors = require('cors');
 const nodemailer = require('nodemailer');
 const axios = require('axios');
 
-// ✅ Chiave segreta Stripe
+// ✅ CHIAVI STRIPE
 const stripe = Stripe('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');
 const endpointSecret = 'whsec_7J80mRaCKhUmVb9EmtY3KjFZiLfw2QFP';
 
-// ✅ Telegram
+// ✅ TELEGRAM
 const TELEGRAM_TOKEN = '8176119113:AAFLpCf4Wtm3aGmcog_JWALYwEol2TjOVMQ';
 const TELEGRAM_CHAT_ID = '1654425542';
 
-const orders = {}; // per memorizzare temporaneamente gli ordini
+const orders = {}; // Ordini temporanei
 
 const app = express();
-
-// ✅ Middleware JSON per tutte le rotte tranne il webhook
 app.use(cors());
+
+// ✅ WEBHOOK STRIPE – RAW BODY REQUIRED
+app.post('/webhook', express.raw({ type: 'application/json' }), async (req, res) => {
+  const sig = req.headers['stripe-signature'];
+  let event;
+
+  try {
+    event = stripe.webhooks.constructEvent(req.body, sig, endpointSecret);
+    console.log('✅ Webhook ricevuto:', event.type);
+  } catch (err) {
+    console.error('❌ Errore verifica webhook:', err.message);
+    return res.status(400).send(`Webhook Error: ${err.message}`);
+  }
+
+  if (event.type === 'checkout.session.completed') {
+    const session = event.data.object;
+    const order = orders[session.id];
+
+    if (!order) {
+      console.error('⚠️ Ordine non trovato per session:', session.id);
+      return res.sendStatus(404);
+    }
+
+    const message = `📦 *Nuovo ordine Neaspace!*\n\n${order.orderDetails}\n\n💰 Total: ${order.total.toFixed(2)} €`;
+
+    // ✅ EMAIL
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: 'design@francescorossi.co',
+        pass: 'privilegeyard'
+      }
+    });
+
+    const mailOptions = {
+      from: 'Neaspace <design@francescorossi.co>',
+      to: 'design@francescorossi.co, boulangerie@gmail.com',
+      subject: '✅ Ordine confermato',
+      text: message.replace(/\*/g, '')
+    };
+
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        console.error('❌ Errore invio email:', error);
+      } else {
+        console.log('📧 Email inviata:', info.response);
+      }
+    });
+
+    // ✅ TELEGRAM
+    await axios.post(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`, {
+      chat_id: TELEGRAM_CHAT_ID,
+      text: message,
+      parse_mode: 'Markdown'
+    });
+
+    delete orders[session.id];
+  }
+
+  res.sendStatus(200);
+});
+
+// ✅ SOLO ORA USIAMO express.json() PER IL RESTO
 app.use(express.json());
 
-// ✅ CREA SESSIONE STRIPE E SALVA ORDINE
+// ✅ CREA SESSIONE STRIPE
 app.post('/create-checkout-session', async (req, res) => {
   const { total, orderDetails } = req.body;
 
@@ -50,69 +111,6 @@ app.post('/create-checkout-session', async (req, res) => {
   }
 });
 
-// ✅ WEBHOOK STRIPE - DOPO PAGAMENTO
-app.post('/webhook', express.raw({ type: 'application/json' }), async (req, res) => {
-  const sig = req.headers['stripe-signature'];
-  let event;
-
-  try {
-    event = stripe.webhooks.constructEvent(req.body, sig, endpointSecret);
-  } catch (err) {
-    console.error('⚠️ Verifica webhook fallita:', err.message);
-    return res.status(400).send(`Webhook Error: ${err.message}`);
-  }
-
-  if (event.type === 'checkout.session.completed') {
-    const session = event.data.object;
-    const order = orders[session.id];
-
-    if (!order) {
-      console.error('❌ Ordine non trovato per session ID:', session.id);
-      return res.sendStatus(404);
-    }
-
-    const message = `📦 *Nuovo ordine Neaspace!*\n\n${order.orderDetails}\n\n💰 Total: ${order.total.toFixed(2)} €`;
-
-    // 📩 Email
-    const transporter = nodemailer.createTransport({
-      service: 'gmail',
-      auth: {
-        user: 'design@francescorossi.co',
-        pass: 'privilegeyard', // ← Usa la tua app password sicura
-      },
-    });
-
-    const mailOptions = {
-      from: 'Neaspace <design@francescorossi.co>',
-      to: 'design@francescorossi.co, boulangerie@gmail.com',
-      subject: '✅ Ordine confermato',
-      text: message.replace(/\*/g, ''), // senza markdown
-    };
-
-    transporter.sendMail(mailOptions, (error, info) => {
-      if (error) {
-        console.error('❌ Errore invio email:', error);
-      } else {
-        console.log('📧 Email inviata:', info.response);
-      }
-    });
-
-    // 📲 Telegram
-    try {
-      await axios.post(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`, {
-        chat_id: TELEGRAM_CHAT_ID,
-        text: message,
-        parse_mode: 'Markdown',
-      });
-    } catch (err) {
-      console.error('❌ Errore invio Telegram:', err.message);
-    }
-
-    delete orders[session.id];
-  }
-
-  res.sendStatus(200);
-});
-
+// ✅ AVVIO SERVER
 const PORT = process.env.PORT || 4242;
-app.listen(PORT, () => console.log(`✅ Backend in ascolto su porta ${PORT}`));
+app.listen(PORT, () => console.log(`🚀 Backend attivo su http://localhost:${PORT}`));
