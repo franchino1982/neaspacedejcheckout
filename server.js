@@ -35,7 +35,7 @@ app.post('/webhook', express.raw({ type: 'application/json' }), async (req, res)
     const orderDetails = session.metadata.orderDetails;
     const total = session.metadata.total;
 
-    const message = `📦 *Nuovo ordine Neaspace!*\n\n${orderDetails}\n\n💰 Total: ${total} €`;
+    const message = `📦 *Nuovo ordine Neaspace!*\n\n${order.orderDetails}`;
 
     // ✅ Invia Email
     const transporter = nodemailer.createTransport({
