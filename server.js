@@ -4,25 +4,27 @@ const cors = require('cors');
 const nodemailer = require('nodemailer');
 const axios = require('axios');
 
-const stripe = Stripe('sk_live_...');
-const endpointSecret = 'whsec_...';
+const stripe = Stripe('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');
+const endpointSecret = 'whsec_7J80mRaCKhUmVb9EmtY3KjFZiLfw2QFP';
 
-const TELEGRAM_TOKEN = '...';
-const TELEGRAM_CHAT_ID = '...';
-const orders = {};
+const TELEGRAM_TOKEN = '8176119113:AAFLpCf4Wtm3aGmcog_JWALYwEol2TjOVMQ';
+const TELEGRAM_CHAT_ID = '1654425542';
+
+const orders = {}; // memorizzazione temporanea degli ordini
 
 const app = express();
+app.use(cors());
 
-// ✅ 1. Route webhook PRIMA di express.json
+// ✅ Webhook Stripe (PRIMA di express.json)
 app.post('/webhook', express.raw({ type: 'application/json' }), async (req, res) => {
   const sig = req.headers['stripe-signature'];
-
   let event;
+
   try {
     event = stripe.webhooks.constructEvent(req.body, sig, endpointSecret);
   } catch (err) {
     console.error('⚠️ Verifica webhook fallita:', err.message);
-    return res.sendStatus(400);
+    return res.status(400).send(`Webhook Error: ${err.message}`);
   }
 
   if (event.type === 'checkout.session.completed') {
@@ -36,6 +38,7 @@ app.post('/webhook', express.raw({ type: 'application/json' }), async (req, res)
 
     const message = `📦 *Nuovo ordine Neaspace!*\n\n${order.orderDetails}\n\n💰 Total: ${order.total.toFixed(2)} €`;
 
+    // 📧 Invio Email
     const transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
@@ -44,30 +47,38 @@ app.post('/webhook', express.raw({ type: 'application/json' }), async (req, res)
       },
     });
 
-    transporter.sendMail({
+    const mailOptions = {
       from: 'Neaspace <design@francescorossi.co>',
       to: 'design@francescorossi.co, boulangerie@gmail.com',
       subject: '✅ Ordine confermato',
       text: message.replace(/\*/g, ''),
+    };
+
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        console.error('Errore invio email:', error);
+      } else {
+        console.log('✅ Email inviata:', info.response);
+      }
     });
 
+    // 📲 Invio Telegram
     await axios.post(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`, {
       chat_id: TELEGRAM_CHAT_ID,
       text: message,
       parse_mode: 'Markdown',
     });
 
-    delete orders[session.id];
+    delete orders[session.id]; // pulizia
   }
 
   res.sendStatus(200);
 });
 
-// ✅ 2. Poi il resto del middleware
-app.use(cors());
+// ✅ Middleware JSON dopo webhook
 app.use(express.json());
 
-// ✅ 3. Create Checkout Session
+// ✅ Endpoint creazione sessione Stripe
 app.post('/create-checkout-session', async (req, res) => {
   const { total, orderDetails } = req.body;
 
@@ -80,18 +91,17 @@ app.post('/create-checkout-session', async (req, res) => {
           product_data: {
             name: 'Petit-déjeuner Neaspace',
           },
-          unit_amount: Math.round(total * 100),
+          unit_amount: Math.round(total * 100), // es: 1€ -> 100
         },
         quantity: 1,
       }],
       mode: 'payment',
-      success_url: 'https://francescorossi.co/success.html',
-      cancel_url: 'https://francescorossi.co/cancel.html',
+      success_url: 'https://neaspace.com/success.html',
+      cancel_url: 'https://neaspace.com/cancel.html',
     });
 
     orders[session.id] = { total, orderDetails };
     res.json({ url: session.url });
-
   } catch (err) {
     console.error('❌ Errore creazione sessione Stripe:', err.message);
     res.status(500).json({ error: 'Errore creazione sessione Stripe' });
@@ -99,4 +109,4 @@ app.post('/create-checkout-session', async (req, res) => {
 });
 
 const PORT = process.env.PORT || 4242;
-app.listen(PORT, () => console.log(`✅ Server attivo su porta ${PORT}`));
+app.listen(PORT, () => console.log(`✅ Backend in ascolto su porta ${PORT}`));
