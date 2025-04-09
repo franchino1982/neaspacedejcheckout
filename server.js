@@ -4,11 +4,11 @@ const cors = require('cors');
 const nodemailer = require('nodemailer');
 const axios = require('axios');
 
-// ✅ Chiavi Stripe live
+// ✅ Chiavi Stripe
 const stripe = Stripe('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');
 const endpointSecret = 'whsec_7J80mRaCKhUmVb9EmtY3KjFZiLfw2QFP';
 
-// ✅ Telegram bot
+// ✅ Telegram
 const TELEGRAM_TOKEN = '8176119113:AAFLpCf4Wtm3aGmcog_JWALYwEol2TjOVMQ';
 const TELEGRAM_CHAT_ID = '1654425542';
 
@@ -32,50 +32,53 @@ app.post('/webhook', express.raw({ type: 'application/json' }), async (req, res)
     const session = event.data.object;
 
     // ✅ Recupera dai metadata
-    const orderDetails = session.metadata.orderDetails;
-    const total = session.metadata.total;
+    const orderDetails = session.metadata?.orderDetails || '⚠️ Nessun dettaglio ordine';
+    const total = session.metadata?.total || '0.00';
 
-    const message = `📦 *Nuovo ordine Neaspace!*\n\n${order.orderDetails}`;
+    const message = `📦 *Nuovo ordine Neaspace!*\n\n${orderDetails}`;
 
-    // ✅ Invia Email
-    const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    user: '19rueneuve@gmail.com',
-    pass: 'mgbxsluutamptoqw' // ✅ password per app Gmail
-  }
-});
+    // ✅ Invia Email (con await + try/catch per evitare crash)
+    try {
+      const transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+          user: '19rueneuve@gmail.com',
+          pass: 'mgbxsluutamptoqw' // Password per app Gmail
+        }
+      });
 
-    const mailOptions = {
-      from: 'Neaspace <design@francescorossi.co>',
-      to: 'design@francescorossi.co, boulangerie@gmail.com',
-      subject: '✅ Ordine confermato',
-      text: message.replace(/\*/g, '')
-    };
+      const mailOptions = {
+        from: 'Neaspace <design@francescorossi.co>',
+        to: 'design@francescorossi.co, boulangerie@gmail.com',
+        subject: '✅ Ordine confermato',
+        text: message.replace(/\*/g, '')
+      };
 
-    transporter.sendMail(mailOptions, (error, info) => {
-      if (error) {
-        console.error('❌ Errore invio email:', error);
-      } else {
-        console.log('📧 Email inviata:', info.response);
-      }
-    });
+      const info = await transporter.sendMail(mailOptions);
+      console.log('📧 Email inviata:', info.response);
+    } catch (error) {
+      console.error('❌ Errore invio email:', error.message);
+    }
 
     // ✅ Invia Telegram
-    await axios.post(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`, {
-      chat_id: TELEGRAM_CHAT_ID,
-      text: message,
-      parse_mode: 'Markdown'
-    });
+    try {
+      await axios.post(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`, {
+        chat_id: TELEGRAM_CHAT_ID,
+        text: message,
+        parse_mode: 'Markdown'
+      });
+    } catch (err) {
+      console.error('❌ Errore invio Telegram:', err.message);
+    }
   }
 
   res.sendStatus(200);
 });
 
-// ✅ Per tutte le altre rotte (POST JSON normale)
+// ✅ Parser JSON dopo il webhook
 app.use(express.json());
 
-// ✅ Crea la sessione Stripe
+// ✅ Crea sessione Stripe
 app.post('/create-checkout-session', async (req, res) => {
   const { total, orderDetails } = req.body;
 
