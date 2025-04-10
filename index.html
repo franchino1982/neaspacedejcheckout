@@ -211,15 +211,35 @@
 
     
 <div style="margin-top: 40px;">
-  <h2>Suppléments</h2>
-  <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;">
-    <label style="display: flex; justify-content: space-between; align-items: center;">Avocado toast 16 €:<input type="number" name="addon_avocado" min="0" max="5" value="0" style="width:60px;"></label>
-    <label style="display: flex; justify-content: space-between; align-items: center;">Pain/Beurre/Confiture 8 €:<input type="number" name="addon_pain" min="0" max="5" value="0" style="width:60px;"></label>
-    <label style="display: flex; justify-content: space-between; align-items: center;">Brioche/Omelette/Bacon 10 €:<input type="number" name="addon_brioche" min="0" max="5" value="0" style="width:60px;"></label>
-    <label style="display: flex; justify-content: space-between; align-items: center;">Salade de saison 10 €:<input type="number" name="addon_salade" min="0" max="5" value="0" style="width:60px;"></label>
-    <label style="display: flex; justify-content: space-between; align-items: center;">Jus d’orange pressé 3 €:<input type="number" name="addon_jus" min="0" max="5" value="0" style="width:60px;"></label>
-  </div>
-  <p style="margin-top: 20px; font-style: italic; color: #666;">* Livraison  7 € via Delicity.</p>
+<h2>Suppléments</h2>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px;">
+  <label style="display: flex; justify-content: space-between; align-items: center;">
+    Avocado toast 16 €:
+    <input type="number" name="addon_avocado" min="0" max="5" value="0" style="width: 60px; margin-left: 10px;">
+  </label>
+
+  <label style="display: flex; justify-content: space-between; align-items: center;">
+    Pain/Beurre/Confiture 8 €:
+    <input type="number" name="addon_pain" min="0" max="5" value="0" style="width: 60px; margin-left: 10px;">
+  </label>
+
+  <label style="display: flex; justify-content: space-between; align-items: center;">
+    Brioche/Omelette/Bacon 10 €:
+    <input type="number" name="addon_brioche" min="0" max="5" value="0" style="width: 60px; margin-left: 10px;">
+  </label>
+
+  <label style="display: flex; justify-content: space-between; align-items: center;">
+    Salade de saison 10 €:
+    <input type="number" name="addon_salade" min="0" max="5" value="0" style="width: 60px; margin-left: 10px;">
+  </label>
+
+  <label style="display: flex; justify-content: space-between; align-items: center;">
+    Jus d’orange pressé 3 €:
+    <input type="number" name="addon_jus" min="0" max="5" value="0" style="width: 60px; margin-left: 10px;">
+  </label>
+</div>
+
+<p style="margin-top: 20px; font-style: italic; color: #666;">* Livraison 7 € via Delicity.</p>
 </div>
 
 <button type="button" onclick="generateSummary()">🧺 Ajouter au panier</button>
