@@ -306,14 +306,20 @@ function generateSummary() {
   const currentHour = now.getHours();
 
   if (isSameDay) {
+  setTimeout(() => {
     alert("❌ Les commandes doivent être passées la veille avant 18h. Veuillez choisir une autre date.");
-    return;
-  }
+  }, 5000);
+  this.value = "";
+  return;
+}
 
-  if (isTomorrow && currentHour >= 18) {
+if (isTomorrow && currentHour >= 18) {
+  setTimeout(() => {
     alert("❌ Il est trop tard pour commander pour demain. Les commandes ferment à 18h la veille.");
-    return;
-  }
+  }, 5000);
+  this.value = "";
+  return;
+}
 
   let hasSelection = false;
   document.querySelectorAll('.formule-block select').forEach(select => {
@@ -427,16 +433,20 @@ document.getElementById("orderForm").addEventListener("submit", function(e) {
     const currentHour = now.getHours();
 
     if (isSameDay) {
-      alert("❌ Les commandes doivent être passées la veille avant 18h. Veuillez choisir une autre date.");
-      this.value = "";
-      return;
-    }
+  setTimeout(() => {
+    alert("❌ Les commandes doivent être passées la veille avant 18h. Veuillez choisir une autre date.");
+  }, 5000);
+  this.value = "";
+  return;
+}
 
-    if (isTomorrow && currentHour >= 18) {
-      alert("❌ Il est trop tard pour commander pour demain. Les commandes ferment à 18h la veille.");
-      this.value = "";
-      return;
-    }
+if (isTomorrow && currentHour >= 18) {
+  setTimeout(() => {
+    alert("❌ Il est trop tard pour commander pour demain. Les commandes ferment à 18h la veille.");
+  }, 5000);
+  this.value = "";
+  return;
+}
   });
 </script>
 
