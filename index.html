@@ -269,38 +269,39 @@ function addFormula(type) {
   div.className = 'formule-block';
   div.id = 'formule_' + formuleId;
   let html = '<button class="remove-btn" onclick="removeFormula(\'' + div.id + '\')">×</button>';
+  
   if (type === 'petitdej') {
-  html += `<strong>Petit-déj – 17 €</strong><br>
-  <label>Choix viennoiserie:
-    <select name="petitdej_${formuleId}_viennoiserie">
-      <option value="">Sélectionnez</option>
-      <option value="Roulée">Roulée</option>
-      <option value="Babka">Babka</option>
-      <option value="Brioche">Brioche</option>
-    </select>
-  </label><br>
-  <label>Type de lait:
-    <select name="petitdej_${formuleId}_lait">
-      <option value="">Sélectionnez</option>
-      <option value="Lait normal">Lait normal</option>
-      <option value="Lait d’avoine">Lait d’avoine</option>
-      <option value="Lait de soja">Lait de soja</option>
-    </select>
-  </label>`;
-}else {
+    html += `<strong>Petit-déj – 17 €</strong><br>
+    <label>Choix viennoiserie:
+      <select class="formule-select" name="petitdej_${formuleId}_viennoiserie">
+        <option value="">Sélectionnez</option>
+        <option value="Roulée">Roulée</option>
+        <option value="Babka">Babka</option>
+        <option value="Brioche">Brioche</option>
+      </select>
+    </label><br>
+    <label>Type de lait:
+      <select class="formule-select" name="petitdej_${formuleId}_lait">
+        <option value="">Sélectionnez</option>
+        <option value="Lait normal">Lait normal</option>
+        <option value="Lait d’avoine">Lait d’avoine</option>
+        <option value="Lait de soja">Lait de soja</option>
+      </select>
+    </label>`;
+  } else {
     html += `<strong>Brunch – 50 €</strong><br>
     <label>Boisson chaude:
-      <select name="brunch_${formuleId}">
+      <select class="formule-select" name="brunch_${formuleId}">
         <option value="">Sélectionnez</option>
         <option value="Café">Café</option>
         <option value="Espresso">Espresso</option>
       </select>
     </label>`;
   }
+
   div.innerHTML += html;
   document.getElementById('formuleContainer').appendChild(div);
 }
-
 function removeFormula(id) {
   const el = document.getElementById(id);
   if (el) el.remove();
