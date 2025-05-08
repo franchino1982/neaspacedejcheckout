@@ -238,12 +238,13 @@
     <input type="number" name="addon_jus" min="0" max="5" value="0" style="width: 60px; margin-left: 10px;">
   </label>
   <label style="display: flex; justify-content: space-between; align-items: center;">
-  Boisson chaude (Café ou Espresso) 4 €:
-  <select name="addon_boisson" style="margin-left: 10px; padding: 4px;">
-    <option value="">-- Sélectionnez --</option>
-    <option value="Café">Café</option>
-    <option value="Espresso">Espresso</option>
-  </select>
+  Café 4 €:
+  <input type="number" name="addon_cafe" min="0" max="5" value="0" style="width: 60px; margin-left: 10px;">
+</label>
+
+<label style="display: flex; justify-content: space-between; align-items: center;">
+  Espresso 4 €:
+  <input type="number" name="addon_espresso" min="0" max="5" value="0" style="width: 60px; margin-left: 10px;">
 </label>
 </div>
 
@@ -393,7 +394,8 @@ if (isTomorrow && currentHour >= 18) {
     ["addon_brioche", "Brioche / Omelette / Bacon", 10],
     ["addon_granola", "Granola", 12.5],
     ["addon_jus", "Jus d’orange pressé", 6.5]
-    ["addon_boisson", "Boisson chaude", 4]
+      ["addon_cafe", "Café", 4],
+  ["addon_espresso", "Espresso", 4]
   ];
   addons.forEach(([name, label, price]) => {
     const el = document.querySelector(`[name="${name}"]`);
