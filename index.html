@@ -237,6 +237,14 @@
     Jus d’orange pressé 6.5 €:
     <input type="number" name="addon_jus" min="0" max="5" value="0" style="width: 60px; margin-left: 10px;">
   </label>
+  <label style="display: flex; justify-content: space-between; align-items: center;">
+  Boisson chaude (Café ou Espresso) 4 €:
+  <select name="addon_boisson" style="margin-left: 10px; padding: 4px;">
+    <option value="">-- Sélectionnez --</option>
+    <option value="Café">Café</option>
+    <option value="Espresso">Espresso</option>
+  </select>
+</label>
 </div>
 
 <p style="margin-top: 20px; font-style: italic; color: #666;">* Livraison 7 € via Delicity.</p>
@@ -385,13 +393,27 @@ if (isTomorrow && currentHour >= 18) {
     ["addon_brioche", "Brioche / Omelette / Bacon", 10],
     ["addon_granola", "Granola", 12.5],
     ["addon_jus", "Jus d’orange pressé", 6.5]
+    ["addon_boisson", "Boisson chaude", 4]
   ];
   addons.forEach(([name, label, price]) => {
-    const qty = parseInt(document.querySelector(`[name="${name}"]`).value || 0);
-    if (qty > 0) {
-      summary += `${label} x${qty}\n`;
-      total += qty * price;
-    }
+    const el = document.querySelector(`[name="${name}"]`);
+if (!el) return;
+
+if (el.tagName === "INPUT") {
+  const qty = parseInt(el.value || 0);
+  if (qty > 0) {
+    summary += `${label} x${qty}\n`;
+    total += qty * price;
+  }
+}
+
+if (el.tagName === "SELECT") {
+  const val = el.value;
+  if (val) {
+    summary += `${label}: ${val} – 4 €\n`;
+    total += price;
+  }
+}
   });
 
   document.getElementById('orderSummary').style.display = 'block';
