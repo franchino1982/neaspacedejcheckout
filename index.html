@@ -333,7 +333,7 @@ if (isTomorrow && currentHour >= 18) {
   document.querySelectorAll('.formule-block select').forEach(select => {
     if (select.value) hasSelection = true;
   });
-  ['addon_avocado', 'addon_pain', 'addon_brioche', 'addon_salade', 'addon_jus'].forEach(name => {
+  ['addon_avocado', 'addon_pain', 'addon_brioche', 'addon_granola', 'addon_jus'].forEach(name => {
     const qty = parseInt(document.querySelector(`[name="${name}"]`).value || 0);
     if (qty > 0) hasSelection = true;
   });
