@@ -174,8 +174,8 @@
     Omelette bacon sur pain brioché – un trio salé et gourmand
   </div>
   <div class="gallery-item" style="text-align: center; font-size: 14px; color: #333; padding: 10px; background: #fff; border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.1);">
-    <img src="https://github.com/franchino1982/neaspacedejcheckout/blob/main/granola.png?raw=true" alt="Salade de saison" style="width: 100%; height: 180px; object-fit: cover; border-radius: 8px;">
-    Salade de saison – fraîcheur du jour avec œuf, quinoa, avocat
+    <img src="https://github.com/franchino1982/neaspacedejcheckout/blob/main/granola.png?raw=true" alt="Granola" style="width: 100%; height: 180px; object-fit: cover; border-radius: 8px;">
+    Granola
   </div>
   <div class="gallery-item" style="text-align: center; font-size: 14px; color: #333; padding: 10px; background: #fff; border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.1);">
     <img src="https://github.com/franchino1982/neaspacedejcheckout/blob/main/juisbio.png?raw=true" alt="Jus d’orange bio" style="width: 100%; height: 180px; object-fit: cover; border-radius: 8px;">
@@ -214,12 +214,12 @@
 <h2>Suppléments</h2>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px;">
   <label style="display: flex; justify-content: space-between; align-items: center;">
-    Avocado toast 16 €:
+    Avocado toast 16.5 €:
     <input type="number" name="addon_avocado" min="0" max="5" value="0" style="width: 60px; margin-left: 10px;">
   </label>
 
   <label style="display: flex; justify-content: space-between; align-items: center;">
-    Pain/Beurre/Confiture 8 €:
+    Pain/Beurre/Confiture 9.5 €:
     <input type="number" name="addon_pain" min="0" max="5" value="0" style="width: 60px; margin-left: 10px;">
   </label>
 
@@ -229,12 +229,12 @@
   </label>
 
   <label style="display: flex; justify-content: space-between; align-items: center;">
-    Salade de saison 10 €:
+    Granola 12.5 €:
     <input type="number" name="addon_salade" min="0" max="5" value="0" style="width: 60px; margin-left: 10px;">
   </label>
 
   <label style="display: flex; justify-content: space-between; align-items: center;">
-    Jus d’orange pressé 3 €:
+    Jus d’orange pressé 6.5 €:
     <input type="number" name="addon_jus" min="0" max="5" value="0" style="width: 60px; margin-left: 10px;">
   </label>
 </div>
@@ -259,7 +259,7 @@ function addFormula(type) {
   div.id = 'formule_' + formuleId;
   let html = '<button class="remove-btn" onclick="removeFormula(\'' + div.id + '\')">×</button>';
   if (type === 'petitdej') {
-    html += `<strong>Petit-déj – 13 €</strong><br>
+    html += `<strong>Petit-déj – 17 €</strong><br>
     <label>Choix viennoiserie:
       <select name="petitdej_${formuleId}">
         <option value="">-- Sélectionnez --</option>
@@ -269,7 +269,7 @@ function addFormula(type) {
       </select>
     </label>`;
   } else {
-    html += `<strong>Brunch – 22 €</strong><br>
+    html += `<strong>Brunch – 50 €</strong><br>
     <label>Boisson chaude:
       <select name="brunch_${formuleId}">
         <option value="">-- Sélectionnez --</option>
@@ -372,11 +372,11 @@ if (isTomorrow && currentHour >= 18) {
   
   
   const addons = [
-    ["addon_avocado", "Avocado toast", 16],
-    ["addon_pain", "Pain / Beurre / Confiture", 8],
+    ["addon_avocado", "Avocado toast", 16.5],
+    ["addon_pain", "Pain / Beurre / Confiture", 9.5],
     ["addon_brioche", "Brioche / Omelette / Bacon", 10],
-    ["addon_salade", "Salade de saison", 10],
-    ["addon_jus", "Jus d’orange pressé", 3]
+    ["addon_granola", "Granola", 12.5],
+    ["addon_jus", "Jus d’orange pressé", 6.5]
   ];
   addons.forEach(([name, label, price]) => {
     const qty = parseInt(document.querySelector(`[name="${name}"]`).value || 0);
