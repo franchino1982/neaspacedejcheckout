@@ -254,6 +254,21 @@
   Espresso 2.5 €
   <input type="number" name="addon_espresso" min="0" max="5" value="0" style="width: 35px; margin-left: 10px;">
 </label>
+  <label style="display: flex; justify-content: space-between; align-items: center;">
+  Latte (normal) 6.5 €
+  <input type="number" name="addon_latte_normal" min="0" max="5" value="0" style="width: 35px; margin-left: 10px;">
+</label>
+
+<label style="display: flex; justify-content: space-between; align-items: center;">
+  Latte (avoine) 6.5 €
+  <input type="number" name="addon_latte_avoine" min="0" max="5" value="0" style="width: 35px; margin-left: 10px;">
+</label>
+
+<label style="display: flex; justify-content: space-between; align-items: center;">
+  Latte (soja) 6.5 €
+  <input type="number" name="addon_latte_soja" min="0" max="5" value="0" style="width: 35px; margin-left: 10px;">
+</label>
+
 </div>
 
 <p style="margin-top: 20px; font-style: italic; color: #666;">* Livraison 7 € via Delicity.</p>
@@ -351,7 +366,17 @@ if (isTomorrow && currentHour >= 18) {
   document.querySelectorAll('.formule-block select').forEach(select => {
     if (select.value) hasSelection = true;
   });
-  ['addon_avocado', 'addon_pain', 'addon_brioche', 'addon_granola', 'addon_jus'].forEach(name => {
+ [
+  'addon_avocado',
+  'addon_pain',
+  'addon_brioche',
+  'addon_granola',
+  'addon_jus',
+  'addon_latte_normal',
+  'addon_latte_avoine',
+  'addon_latte_soja'
+].forEach(name => {
+
     const qty = parseInt(document.querySelector(`[name="${name}"]`).value || 0);
     if (qty > 0) hasSelection = true;
   });
@@ -405,6 +430,9 @@ if (isTomorrow && currentHour >= 18) {
   ["addon_jus", "Jus d’orange pressé bio", 6.5],
   ["addon_cafe", "Café", 4],
   ["addon_espresso", "Espresso", 2.5]
+  ["addon_latte_normal", "Latte (normal)", 6.5],
+  ["addon_latte_avoine", "Latte (avoine)", 6.5],
+  ["addon_latte_soja", "Latte (soja)", 6.5]
 ];
   addons.forEach(([name, label, price]) => {
     const el = document.querySelector(`[name="${name}"]`);
