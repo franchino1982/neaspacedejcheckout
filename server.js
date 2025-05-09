@@ -12,20 +12,27 @@ const endpointSecret = 'whsec_7J80mRaCKhUmVb9EmtY3KjFZiLfw2QFP';
 
 const TELEGRAM_TOKEN = '8176119113:AAFLpCf4Wtm3aGmcog_JWALYwEol2TjOVMQ';
 const TELEGRAM_CHAT_ID = '1654425542';
-
-const sheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRCXe8mIKXQycY1M7awc49gemXG8vY8tSdqzrWOqx4hGJ7Aq6hg7CFyW72MHXsZkbaX9SlV0DRRNgXt/pub?output=csv';
+const START_DATE = new Date("2025-05-23");
+const sheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vScTm1j0tp3F7h89bhmLGqEJr4nlJuqPCPm8j57qn3xqFfIYk3Mf89KXRWqbxzmxA/pub?output=csv";
 
 async function isDateOpen(dateStr) {
-  const response = await fetch(sheetUrl);
-  const csvData = await response.text();
-  const rows = await csv().fromString(csvData);
+  const date = new Date(dateStr);
+  if (isNaN(date)) return false;
+  if (date < START_DATE) return false;
+  if (date.getDay() === 3) return false; // Mercoledì = 3
 
-  const options = { day: 'numeric', month: 'long', year: 'numeric' };
-  const formattedDate = new Date(dateStr).toLocaleDateString('en-GB', options).replace(/,/g, '');
-
-  const match = rows.find(r => r.Date.trim() === formattedDate.trim());
-  return !match || match.Status.toLowerCase() === 'open';
+  try {
+    const response = await fetch(sheetUrl);
+    const text = await response.text();
+    const rows = text.split('\n').map(r => r.trim());
+    const blockedDates = rows.filter(r => /^\d{4}-\d{2}-\d{2}$/.test(r));
+    return !blockedDates.includes(dateStr);
+  } catch (err) {
+    console.error("❌ Errore fetch calendario:", err);
+    return false;
+  }
 }
+
 
 const app = express();
 app.use(cors());
