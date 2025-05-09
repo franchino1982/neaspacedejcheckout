@@ -96,6 +96,11 @@ app.use(express.json());
 
 app.post('/create-checkout-session', async (req, res) => {
   const { total, orderDetails, delivery_date } = req.body;
+if (!total || total <= 0) {
+  return res.status(400).json({
+    error: "❌ Le montant total ne peut pas être zéro. Veuillez sélectionner une formule ou un supplément."
+  });
+}
 
   const available = await isDateOpen(delivery_date);
   if (!available) {
