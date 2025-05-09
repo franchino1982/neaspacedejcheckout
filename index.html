@@ -433,8 +433,7 @@ if (isTomorrow && currentHour >= 18) {
       total += prix.petitdej;
     }
     if (select && select.name.startsWith("brunch") && select.value) {
-      summary += `Formule Brunch: Toast + Boisson: ${select.value} + Jus
-`;
+      summary += `Formule Brunch – Boisson chaude: ${select.value}`;
       total += prix.brunch;
     }
   });
