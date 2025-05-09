@@ -393,7 +393,7 @@ function generateSummary() {
     if (block.innerHTML.includes('Petit-déj')) {
       const viennoiserie = selects[0]?.value || 'Non sélectionnée';
       const lait = selects[1]?.value || 'Non sélectionné';
-      summary += `Formule Petit-déj – 13 €:
+      summary += `\nFormule Petit-déj – 13 €:
 - Viennoiserie: ${viennoiserie}
 - Latté: ${lait}
 - Jus d’orange pressé
@@ -401,7 +401,7 @@ function generateSummary() {
       total += prix.petitdej;
     } else if (block.innerHTML.includes('Brunch')) {
       const boisson = selects[0]?.value || 'Non sélectionnée';
-      summary += `Formule Brunch – 22 €:
+      summary += `\nFormule Brunch – 22 €:
 - Avocado toast
 - Pain, beurre et confiture
 - Granola
