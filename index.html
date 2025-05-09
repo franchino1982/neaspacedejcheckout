@@ -381,59 +381,64 @@ function generateSummary() {
     return;
   }
 
-  let summary = `📅 Livraison: ${dateInput} à ${timeInput}
-📱 Contact: ${phoneInput}
-
+let summary = `📅 Livraison: ${date} à ${time}
+📍 Adresse: 19 Rue Neuve, Nice – 2ème étage, porte à droite (🔔 Rossi-Lamrabet)
+📱 Contact: ${phone}
 `;
+
   let total = 0;
   const prix = { petitdej: 13, brunch: 22 };
 
   document.querySelectorAll('.formule-block').forEach(block => {
-    const selects = block.querySelectorAll('select');
-    if (block.innerHTML.includes('Petit-déj')) {
-      const viennoiserie = selects[0]?.value || 'Non sélectionnée';
-      const lait = selects[1]?.value || 'Non sélectionné';
-      summary += `\nFormule Petit-déj – 13 €:
-- Viennoiserie: ${viennoiserie}
-- Latté: ${lait}
-- Jus d’orange pressé
-\n`;
-      total += prix.petitdej;
-    } else if (block.innerHTML.includes('Brunch')) {
-      const boisson = selects[0]?.value || 'Non sélectionnée';
-      summary += `\nFormule Brunch – 22 €:
-- Avocado toast
-- Pain, beurre et confiture
-- Granola
-- Boisson chaude: ${boisson}
-- Jus d’orange pressé
-\n`;
-      total += prix.brunch;
-    }
-  });
+  const selects = block.querySelectorAll('select');
 
-  const addons = [
-    ["addon_avocado", "Avocado toast", 16.5],
-    ["addon_pain", "Pain / Beurre / Confiture", 9.5],
-    ["addon_brioche", "Omelette bacon sur pain brioché", 10],
-    ["addon_granola", "Granola", 12.5],
-    ["addon_jus", "Jus d’orange pressé bio", 6.5],
-    ["addon_cafe", "Café", 4],
-    ["addon_espresso", "Espresso", 2.5],
-    ["addon_latte_normal", "Latte (normal)", 6.5],
-    ["addon_latte_avoine", "Latte (avoine)", 6.5],
-    ["addon_latte_soja", "Latte (soja)", 6.5]
-  ];
+  if (block.querySelector('select[name^="petitdej"]')) {
+    const viennoiserie = selects[0]?.value || 'non spécifié';
+    const lait = selects[1]?.value || 'non spécifié';
+
+    summary += `\nFormule Petit-déj – 13 €:\n` +
+               `- Viennoiserie: ${viennoiserie}\n` +
+               `- Latté: ${lait}\n` +
+               `- Jus d’orange pressé\n`;
+    total += prix.petitdej;
+  }
+
+  if (block.querySelector('select[name^="brunch"]')) {
+    const boisson = selects[0]?.value || 'non spécifié';
+
+    summary += `\nFormule Brunch – 22 €:\n` +
+               `- Avocado toast\n` +
+               `- Pain, beurre et confiture\n` +
+               `- Granola\n` +
+               `- Boisson chaude: ${boisson}\n` +
+               `- Jus d’orange pressé\n`;
+    total += prix.brunch;
+  }
+});
+
+const addons = [
+  ["addon_avocado", "Avocado toast", 16.5],
+  ["addon_pain", "Pain / Beurre / Confiture", 9.5],
+  ["addon_brioche", "Omelette bacon sur pain brioché", 10],
+  ["addon_granola", "Granola", 12.5],
+  ["addon_jus", "Jus d’orange pressé bio", 6.5],
+  ["addon_cafe", "Café", 4],
+  ["addon_espresso", "Espresso", 2.5],
+  ["addon_latte_normal", "Latte (normal)", 6.5],
+  ["addon_latte_avoine", "Latte (avoine)", 6.5],
+  ["addon_latte_soja", "Latte (soja)", 6.5]
+];
 
   addons.forEach(([name, label, price]) => {
-    const el = document.querySelector(`[name="${name}"]`);
-    if (!el) return;
-    const qty = parseInt(el.value || 0);
-    if (qty > 0) {
-      summary += `${label} x${qty}\n`;
-      total += qty * price;
-    }
-  });
+  const el = document.querySelector(`[name="${name}"]`);
+  if (!el) return;
+
+  const qty = parseInt(el.value || 0);
+  if (qty > 0) {
+    summary += `${label} (${price} €) – Quantité: ${qty}\n`;
+    total += qty * price;
+  }
+});
 
   summary += `\n🚚 Livraison facturée 7 € via notre partenaire Delicity.`;
   total += 7;
