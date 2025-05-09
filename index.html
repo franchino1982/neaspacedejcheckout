@@ -461,7 +461,7 @@ document.getElementById("orderForm").addEventListener("submit", function(e) {
     alert("❌ Une erreur est survenue lors du paiement.");
   });
 });
-</script>
+<script>
 async function isDateOpen(dateStr) {
   const calendarUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRCXe8mIKXQycY1M7awc49gemXG8vY8tSdqzrWOqx4hGJ7Aq6hg7CFyW72MHXsZkbaX9SlV0DRRNgXt/pub?output=csv";
 
@@ -480,7 +480,7 @@ async function isDateOpen(dateStr) {
     return false;
   }
 }
-
+</script>
 
 <script>
 document.querySelector('[name="delivery_date"]').addEventListener('change', async function () {
@@ -498,60 +498,25 @@ document.querySelector('[name="delivery_date"]').addEventListener('change', asyn
 
   const isOpen = await isDateOpen(deliveryDateFormatted);
   if (!isOpen) {
-    alert("❌ Le fournil est fermé à cette date. Merci de choisir un autre jour.");
+    alert("\u274c Le fournil est fermé à cette date. Merci de choisir un autre jour.");
     this.value = "";
     return;
   }
 
   if (isSameDay) {
-    alert("❌ Les commandes doivent être passées la veille avant 18h. Veuillez choisir une autre date.");
+    alert("\u274c Les commandes doivent être passées la veille avant 18h. Veuillez choisir une autre date.");
     this.value = "";
     return;
   }
 
   if (isTomorrow && currentHour >= 18) {
-    alert("❌ Il est trop tard pour commander pour demain. Les commandes ferment à 18h la veille.");
-    this.value = "";
-    return;
-  }
-});
-
-  const dateInput = this.value;
-  const today = new Date();
-  const deliveryDate = new Date(dateInput + 'T00:00:00');
-  const now = new Date();
-  const isSameDay = today.toDateString() === deliveryDate.toDateString();
-  const isTomorrow = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1).toDateString() === deliveryDate.toDateString();
-  const currentHour = now.getHours();
-
-  const deliveryDateFormatted = new Date(dateInput).toLocaleDateString('en-GB', {
-    day: 'numeric', month: 'short', year: 'numeric'
-  }).replace(/ /g, ' ');
-
-  const isOpen = await isDateOpen(deliveryDateFormatted);
-  if (!isOpen) {
-    alert("❌ Le fournil est fermé à cette date. Merci de choisir un autre jour.");
-    this.value = "";
-    return;
-  }
-
-  if (isSameDay) {
-    setTimeout(() => {
-      alert("❌ Les commandes doivent être passées la veille avant 18h. Veuillez choisir une autre date.");
-    }, 5000);
-    this.value = "";
-    return;
-  }
-
-  if (isTomorrow && currentHour >= 18) {
-    setTimeout(() => {
-      alert("❌ Il est trop tard pour commander pour demain. Les commandes ferment à 18h la veille.");
-    }, 5000);
+    alert("\u274c Il est trop tard pour commander pour demain. Les commandes ferment à 18h la veille.");
     this.value = "";
     return;
   }
 });
 </script>
+
 <script>
   window.addEventListener('DOMContentLoaded', () => {
     const dateInput = document.getElementById('deliveryDate');
