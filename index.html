@@ -483,13 +483,15 @@ window.addEventListener('DOMContentLoaded', async () => {
   // Assicura che unavailableDatesFromSheet sia caricata
   await fetchUnavailableDates();
 
-  dateInput.addEventListener('change', () => {
-    const selectedDate = dateInput.value;
-    if (isInvalid(selectedDate)) {
-      alert("❌ Cette date n'est pas disponible. Merci de choisir un autre jour.");
-      dateInput.value = "";
-    }
-  });
+dateInput.addEventListener('change', () => {
+  const selectedDate = dateInput.value;
+  if (!selectedDate || selectedDate.length < 10) return; // Ignora input vuoto o incompleto
+
+  if (isInvalid(selectedDate)) {
+    alert("❌ Cette date n'est pas disponible. Merci de choisir un autre jour.");
+    dateInput.value = "";
+  }
+});
 });
    </script>
 
