@@ -464,46 +464,64 @@ document.getElementById("orderForm").addEventListener("submit", function(e) {
 </script>
 
 <script>
-// Data di inizio servizio
-const firstAvailableDate = new Date('2025-05-23');
+const START_DATE = new Date("2025-05-23");
+const sheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vScTm1j0tp3F7h89bhmLGqEJr4nlJuqPCPm8j57qn3xqFfIYk3Mf89KXRWqbxzmxA/pub?output=csv";
 
-// Date non disponibili (prese dal file Excel in futuro)
-const unavailableDates = [
-  "28/05/2025", "14/06/2025", "23/06/2025" // puoi aggiungerne quante vuoi
-];
+let unavailableDatesFromSheet = [];
 
-// 🔄 Controlla se è mercoledì
-function isWednesday(date) {
-  return date.getDay() === 3;
+async function fetchUnavailableDates() {
+  try {
+    const response = await fetch(sheetUrl);
+    const text = await response.text();
+    const rows = text.split('\n');
+    unavailableDatesFromSheet = rows.map(row => row.trim()).filter(r => r.match(/^\d{4}-\d{2}-\d{2}$/));
+  } catch (err) {
+    console.error("❌ Errore caricamento date bloccate:", err);
+  }
 }
 
-// 🔄 Formatta data in DD/MM/YYYY
-function formatDate(d) {
-  return d.toLocaleDateString('fr-FR');
+function isWednesday(dateStr) {
+  const d = new Date(dateStr);
+  return d.getDay() === 3;
 }
 
-// 🔄 Quando l'utente seleziona una data
-document.querySelector('[name="delivery_date"]').addEventListener('change', function () {
-  const selected = new Date(this.value);
+function isValidDate(dateStr) {
+  const d = new Date(dateStr);
+  if (isNaN(d)) return false;
+  if (d < START_DATE) return false;
+  if (isWednesday(dateStr)) return false;
+  if (unavailableDatesFromSheet.includes(dateStr)) return false;
+  return true;
+}
 
-  if (selected < firstAvailableDate) {
-    alert("❌ Les commandes commencent à partir du 23 mai 2025.");
-    this.value = "";
-    return;
-  }
+document.addEventListener("DOMContentLoaded", async () => {
+  await fetchUnavailableDates();
 
-  if (isWednesday(selected)) {
-    alert("❌ Le service n’est pas disponible le mercredi.");
-    this.value = "";
-    return;
-  }
+  const dateInput = document.getElementById("deliveryDate");
+  const today = new Date();
+  const twoDaysLater = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 2);
+  dateInput.value = twoDaysLater.toISOString().split('T')[0];
 
-  const selectedFormatted = formatDate(selected);
-  if (unavailableDates.includes(selectedFormatted)) {
-    alert(`❌ Le fournil est fermé le ${selectedFormatted}. Merci de choisir une autre date.`);
-    this.value = "";
-    return;
-  }
+  dateInput.addEventListener("change", () => {
+    const selectedDate = dateInput.value;
+    const now = new Date();
+    const selected = new Date(selectedDate + 'T00:00:00');
+
+    const isSameDay = selected.toDateString() === now.toDateString();
+    const isTomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1).toDateString() === selected.toDateString();
+
+    if (!isValidDate(selectedDate)) {
+      alert("❌ Cette date n'est pas disponible. Merci de choisir un autre jour.");
+      dateInput.value = "";
+      return;
+    }
+
+    if (isSameDay || (isTomorrow && now.getHours() >= 18)) {
+      alert("❌ Commande trop tardive. Merci de choisir une autre date.");
+      dateInput.value = "";
+      return;
+    }
+  });
 });
 </script>
 <script>
