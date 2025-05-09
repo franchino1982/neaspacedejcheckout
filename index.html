@@ -464,64 +464,43 @@ document.getElementById("orderForm").addEventListener("submit", function(e) {
 </script>
 
 <script>
-async function isDateOpen(dateStr) {
-  const calendarUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRCXe8mIKXQycY1M7awc49gemXG8vY8tSdqzrWOqx4hGJ7Aq6hg7CFyW72MHXsZkbaX9SlV0DRRNgXt/pub?output=csv";
+// Data di inizio servizio
+const firstAvailableDate = new Date('2025-05-23');
 
-  try {
-    const response = await fetch(calendarUrl);
-    const text = await response.text();
-    const rows = text.split('\n').map(r => r.split(',').map(cell => cell.trim()));
+// Date non disponibili (prese dal file Excel in futuro)
+const unavailableDates = [
+  "28/05/2025", "14/06/2025", "23/06/2025" // puoi aggiungerne quante vuoi
+];
 
-    const match = rows.find(([date, status]) => date === dateStr);
-    if (!match) return false;
-    if (match[1].toLowerCase() !== 'open') return false;
-
-    return true;
-  } catch (err) {
-    console.error("\u274c Errore calendario:", err);
-    return false;
-  }
+// 🔄 Controlla se è mercoledì
+function isWednesday(date) {
+  return date.getDay() === 3;
 }
 
-window.addEventListener('DOMContentLoaded', () => {
-  const dateInput = document.getElementById('deliveryDate');
-  const today = new Date();
-  const dayAfterTomorrow = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 2);
+// 🔄 Formatta data in DD/MM/YYYY
+function formatDate(d) {
+  return d.toLocaleDateString('fr-FR');
+}
 
-  const yyyy = dayAfterTomorrow.getFullYear();
-  const mm = String(dayAfterTomorrow.getMonth() + 1).padStart(2, '0');
-  const dd = String(dayAfterTomorrow.getDate()).padStart(2, '0');
-  dateInput.value = `${yyyy}-${mm}-${dd}`;
-});
+// 🔄 Quando l'utente seleziona una data
+document.querySelector('[name="delivery_date"]').addEventListener('change', function () {
+  const selected = new Date(this.value);
 
-document.querySelector('[name="delivery_date"]').addEventListener('change', async function () {
-  const dateInput = this.value;
-  const today = new Date();
-  const deliveryDate = new Date(dateInput + 'T00:00:00');
-  const now = new Date();
-  const isSameDay = today.toDateString() === deliveryDate.toDateString();
-  const isTomorrow = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1).toDateString() === deliveryDate.toDateString();
-  const currentHour = now.getHours();
-
-  const deliveryDateFormatted = new Date(dateInput).toLocaleDateString('en-GB', {
-    day: 'numeric', month: 'short', year: 'numeric'
-  }).replace(/ /g, ' ');
-
-  const isOpen = await isDateOpen(deliveryDateFormatted);
-  if (!isOpen) {
-    alert("\u274c Le fournil est ferm\u00e9 \u00e0 cette date. Merci de choisir un autre jour.");
+  if (selected < firstAvailableDate) {
+    alert("❌ Les commandes commencent à partir du 23 mai 2025.");
     this.value = "";
     return;
   }
 
-  if (isSameDay) {
-    alert("\u274c Les commandes doivent \u00eatre pass\u00e9es la veille avant 18h. Veuillez choisir une autre date.");
+  if (isWednesday(selected)) {
+    alert("❌ Le service n’est pas disponible le mercredi.");
     this.value = "";
     return;
   }
 
-  if (isTomorrow && currentHour >= 18) {
-    alert("\u274c Il est trop tard pour commander pour demain. Les commandes ferment \u00e0 18h la veille.");
+  const selectedFormatted = formatDate(selected);
+  if (unavailableDates.includes(selectedFormatted)) {
+    alert(`❌ Le fournil est fermé le ${selectedFormatted}. Merci de choisir une autre date.`);
     this.value = "";
     return;
   }
