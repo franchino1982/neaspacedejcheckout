@@ -471,18 +471,27 @@ async function isDateOpen(dateStr) {
     const rows = text.split('\n').map(r => r.split(',').map(cell => cell.trim()));
 
     const match = rows.find(([date, status]) => date === dateStr);
-    if (!match) return false; // data non trovata
-    if (match[1].toLowerCase() !== 'open') return false; // data chiusa
+    if (!match) return false;
+    if (match[1].toLowerCase() !== 'open') return false;
 
     return true;
   } catch (err) {
-    console.error("❌ Errore calendario:", err);
+    console.error("\u274c Errore calendario:", err);
     return false;
   }
 }
-</script>
 
-<script>
+window.addEventListener('DOMContentLoaded', () => {
+  const dateInput = document.getElementById('deliveryDate');
+  const today = new Date();
+  const dayAfterTomorrow = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 2);
+
+  const yyyy = dayAfterTomorrow.getFullYear();
+  const mm = String(dayAfterTomorrow.getMonth() + 1).padStart(2, '0');
+  const dd = String(dayAfterTomorrow.getDate()).padStart(2, '0');
+  dateInput.value = `${yyyy}-${mm}-${dd}`;
+});
+
 document.querySelector('[name="delivery_date"]').addEventListener('change', async function () {
   const dateInput = this.value;
   const today = new Date();
@@ -498,25 +507,24 @@ document.querySelector('[name="delivery_date"]').addEventListener('change', asyn
 
   const isOpen = await isDateOpen(deliveryDateFormatted);
   if (!isOpen) {
-    alert("\u274c Le fournil est fermé à cette date. Merci de choisir un autre jour.");
+    alert("\u274c Le fournil est ferm\u00e9 \u00e0 cette date. Merci de choisir un autre jour.");
     this.value = "";
     return;
   }
 
   if (isSameDay) {
-    alert("\u274c Les commandes doivent être passées la veille avant 18h. Veuillez choisir une autre date.");
+    alert("\u274c Les commandes doivent \u00eatre pass\u00e9es la veille avant 18h. Veuillez choisir une autre date.");
     this.value = "";
     return;
   }
 
   if (isTomorrow && currentHour >= 18) {
-    alert("\u274c Il est trop tard pour commander pour demain. Les commandes ferment à 18h la veille.");
+    alert("\u274c Il est trop tard pour commander pour demain. Les commandes ferment \u00e0 18h la veille.");
     this.value = "";
     return;
   }
 });
 </script>
-
 <script>
   window.addEventListener('DOMContentLoaded', () => {
     const dateInput = document.getElementById('deliveryDate');
