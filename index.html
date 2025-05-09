@@ -537,5 +537,67 @@ document.addEventListener("DOMContentLoaded", async () => {
     dateInput.value = `${yyyy}-${mm}-${dd}`;
   });
 </script>
+  <script>
+const START_DATE = new Date("2025-05-23");
+const sheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vScTm1j0tp3F7h89bhmLGqEJr4nlJuqPCPm8j57qn3xqFfIYk3Mf89KXRWqbxzmxA/pub?output=csv";
+
+let unavailableDatesFromSheet = [];
+
+async function fetchUnavailableDates() {
+  try {
+    const response = await fetch(sheetUrl);
+    const text = await response.text();
+    const rows = text.split('\n');
+    unavailableDatesFromSheet = rows
+      .map(row => row.trim())
+      .filter(r => r.match(/^\d{4}-\d{2}-\d{2}$/));
+  } catch (err) {
+    console.error("❌ Errore caricamento date bloccate:", err);
+  }
+}
+
+function isWednesday(dateStr) {
+  const d = new Date(dateStr);
+  return d.getDay() === 3;
+}
+
+function isInvalid(dateStr) {
+  const d = new Date(dateStr);
+  return (
+    isNaN(d) ||
+    d < START_DATE ||
+    isWednesday(dateStr) ||
+    unavailableDatesFromSheet.includes(dateStr)
+  );
+}
+
+function formatDateShort(dateStr) {
+  const d = new Date(dateStr);
+  return d.toLocaleDateString('fr-FR', {
+    day: 'numeric',
+    month: 'short'
+  });
+}
+
+async function showNextUnavailable() {
+  await fetchUnavailableDates();
+
+  const result = [];
+  const today = new Date();
+  let date = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+
+  while (result.length < 3) {
+    const iso = date.toISOString().split('T')[0];
+    if (isInvalid(iso)) result.push(formatDateShort(iso));
+    date.setDate(date.getDate() + 1);
+  }
+
+  document.getElementById("nextUnavailable").textContent =
+    `⚠️ Prochaines dates non disponibles: ${result.join(', ')}`;
+}
+
+document.addEventListener("DOMContentLoaded", showNextUnavailable);
+</script>
+
 </body>
 </html>
