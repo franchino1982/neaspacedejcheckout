@@ -252,7 +252,7 @@
 </label>
 
 <label style="display: flex; justify-content: space-between; align-items: center;">
-  Espresso 4 €
+  Espresso 2.5 €
   <input type="number" name="addon_espresso" min="0" max="5" value="0" style="width: 35px; margin-left: 10px;">
 </label>
 </div>
@@ -405,7 +405,7 @@ if (isTomorrow && currentHour >= 18) {
   ["addon_granola", "Granola", 12.5],
   ["addon_jus", "Jus d’orange pressé bio", 6.5],
   ["addon_cafe", "Café", 4],
-  ["addon_espresso", "Espresso", 4]
+  ["addon_espresso", "Espresso", 2.5]
 ];
   addons.forEach(([name, label, price]) => {
     const el = document.querySelector(`[name="${name}"]`);
