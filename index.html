@@ -1,5 +1,7 @@
+no figurati ho selezionato roba... controlla ancora:
 
 <!DOCTYPE html>
+
 <html lang="fr">
 <head>
 
@@ -20,7 +22,6 @@
   }
 </style>
 
-
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Playfair+Display:ital,wght@0,600;1,500&display=swap" rel="stylesheet">
 <style>
   body {
@@ -38,7 +39,6 @@
     color: #666;
   }
 </style>
-
 
 <style>
   body {
@@ -220,27 +220,22 @@
   <label style="flex: 1 1 250px; min-width: 200px;">Date de livraison:
     <input type="date" id="deliveryDate" name="delivery_date" required style="width: 100%; padding: 6px;">
   </label>
-  
-  <label style="flex: 1 1 250px; min-width: 200px;">Heure:
-    <select name="delivery_time" required style="width: 100%; padding: 6px;">
-      <option value="">Sélectionnez</option>
-      <option>07:30</option><option>08:00</option><option>08:30</option>
-      <option>09:00</option><option>09:30</option><option>10:00</option>
-    </select>
-  </label>
-  
-  <label style="flex: 1 1 250px; min-width: 200px;">WhatsApp:
-    <input type="tel" name="whatsapp" required placeholder="+33 6..." style="width: 100%; padding: 6px;">
-  </label>
+
+<label style="flex: 1 1 250px; min-width: 200px;">Heure: <select name="delivery_time" required style="width: 100%; padding: 6px;"> <option value="">Sélectionnez</option> <option>07:30</option><option>08:00</option><option>08:30</option> <option>09:00</option><option>09:30</option><option>10:00</option> </select> </label>
+
+<label style="flex: 1 1 250px; min-width: 200px;">WhatsApp: <input type="tel" name="whatsapp" required placeholder="+33 6..." style="width: 100%; padding: 6px;"> </label>
+
 </div>
     <div class="btn-container">
       <button type="button" onclick="addFormula('petitdej')">+ Ajouter une formule Petit déjeuner</button>
       <button type="button" onclick="addFormula('brunch')">+ Ajouter une formule Brunch</button>
     </div>
 
-    <div id="formuleContainer"></div>
+```
+<div id="formuleContainer"></div>
 
-    
+```
+
 <div style="margin-top: 40px;">
 <h2>Suppléments</h2>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px;">
@@ -297,9 +292,8 @@
 <p style="margin-top: 20px; font-style: italic; color: #666;">* Livraison 7 € via Delicity.</p>
 </div>
 
-<button type="button" onclick="generateSummary()">🧺 Ajouter au panier</button>
-    <pre id="orderSummary" style="display:none; background:#eee; padding:15px; margin-top:20px; border-radius:8px;"></pre>
-<button type="submit">✅ Paiement</button>
+<button type="button" onclick="generateSummary()">🧺 Ajouter au panier</button> <pre id="orderSummary" style="display:none; background:#eee; padding:15px; margin-top:20px; border-radius:8px;"></pre> <button type="submit">✅ Paiement</button>
+
   </form>
 </div>
 
@@ -383,7 +377,7 @@ function generateSummary() {
 
 let summary = `📅 Livraison: ${dateInput} à ${timeInput}
 📍 Adresse: 19 Rue Neuve, Nice – 2ème étage, porte à droite (🔔 Rossi-Lamrabet)
-📱 Contact: ${phone}
+📱 Contact: ${phoneInput}
 `;
 
   let total = 0;
@@ -498,6 +492,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   });
 });
    </script>
+
   <script>
 const START_DATE = new Date("2025-05-23");
 const sheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vScTm1j0tp3F7h89bhmLGqEJr4nlJuqPCPm8j57qn3xqFfIYk3Mf89KXRWqbxzmxA/pub?output=csv";
