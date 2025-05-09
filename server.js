@@ -60,7 +60,7 @@ app.post('/webhook', express.raw({ type: 'application/json' }), async (req, res)
 
       const mailOptions = {
         from: 'Neaspace <design@francescorossi.co>',
-        to: 'design@francescorossi.co, boulangerie@gmail.com',
+        to: 'design@francescorossi.co, dominika@zielinska.fr',
         subject: '✅ Ordine confermato',
         text: message.replace(/\*/g, '')
       };
