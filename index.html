@@ -464,67 +464,6 @@ document.getElementById("orderForm").addEventListener("submit", function(e) {
 </script>
 
 <script>
-const START_DATE = new Date("2025-05-23");
-const sheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vScTm1j0tp3F7h89bhmLGqEJr4nlJuqPCPm8j57qn3xqFfIYk3Mf89KXRWqbxzmxA/pub?output=csv";
-
-let unavailableDatesFromSheet = [];
-
-async function fetchUnavailableDates() {
-  try {
-    const response = await fetch(sheetUrl);
-    const text = await response.text();
-    const rows = text.split('\n');
-    unavailableDatesFromSheet = rows.map(row => row.trim()).filter(r => r.match(/^\d{4}-\d{2}-\d{2}$/));
-  } catch (err) {
-    console.error("❌ Errore caricamento date bloccate:", err);
-  }
-}
-
-function isWednesday(dateStr) {
-  const d = new Date(dateStr);
-  return d.getDay() === 3;
-}
-
-function isValidDate(dateStr) {
-  const d = new Date(dateStr);
-  if (isNaN(d)) return false;
-  if (d < START_DATE) return false;
-  if (isWednesday(dateStr)) return false;
-  if (unavailableDatesFromSheet.includes(dateStr)) return false;
-  return true;
-}
-
-document.addEventListener("DOMContentLoaded", async () => {
-  await fetchUnavailableDates();
-
-  const dateInput = document.getElementById("deliveryDate");
-  const today = new Date();
-  const twoDaysLater = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 2);
-  dateInput.value = twoDaysLater.toISOString().split('T')[0];
-
-  dateInput.addEventListener("change", () => {
-    const selectedDate = dateInput.value;
-    const now = new Date();
-    const selected = new Date(selectedDate + 'T00:00:00');
-
-    const isSameDay = selected.toDateString() === now.toDateString();
-    const isTomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1).toDateString() === selected.toDateString();
-
-    if (!isValidDate(selectedDate)) {
-      alert("❌ Cette date n'est pas disponible. Merci de choisir un autre jour.");
-      dateInput.value = "";
-      return;
-    }
-
-    if (isSameDay || (isTomorrow && now.getHours() >= 18)) {
-      alert("❌ Commande trop tardive. Merci de choisir une autre date.");
-      dateInput.value = "";
-      return;
-    }
-  });
-});
-</script>
-<script>
   window.addEventListener('DOMContentLoaded', () => {
     const dateInput = document.getElementById('deliveryDate');
     const today = new Date();
