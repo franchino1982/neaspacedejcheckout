@@ -179,7 +179,7 @@
   </div>
   <div class="formule-hero-item" style="background: #fff; padding: 10px; border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); text-align:center;">
     <img src="https://raw.githubusercontent.com/franchino1982/neaspacedejcheckout/refs/heads/main/formbrunch.png" alt="Formule Brunch" style="width:100%; height:250px; object-fit:cover; border-radius:12px; margin-bottom:10px;">
-    <div><strong>Formule Brunch</strong><br>Avocado toast, pain, beurre et confiture, granola, boisson chaude (au choix : lait normal, avoine ou soja), jus d’orange pressé  
+    <div><strong>Formule Brunch</strong><br>Avocado toast, pain, beurre et confiture, granola, boisson chaude (au choix : Cafe' au Espresso), jus d’orange pressé  
 <em>Un brunch généreux pour commencer la journée avec plaisir.</em></div>
   </div>
 </div>
@@ -350,9 +350,7 @@ function removeFormula(id) {
   const el = document.getElementById(id);
   if (el) el.remove();
 }
-
 function generateSummary() {
-
   const dateInput = document.querySelector('[name="delivery_date"]').value;
   const timeInput = document.querySelector('[name="delivery_time"]').value;
   const phoneInput = document.querySelector('[name="whatsapp"]').value;
@@ -370,117 +368,80 @@ function generateSummary() {
   const currentHour = now.getHours();
 
   if (isSameDay) {
-  setTimeout(() => {
-    alert("❌ Les commandes doivent être passées la veille avant 18h. Veuillez choisir une autre date.");
-  }, 5000);
-  this.value = "";
-  return;
-}
-
-if (isTomorrow && currentHour >= 18) {
-  setTimeout(() => {
-    alert("❌ Il est trop tard pour commander pour demain. Les commandes ferment à 18h la veille.");
-  }, 5000);
-  this.value = "";
-  return;
-}
-
-  let hasSelection = false;
-  document.querySelectorAll('.formule-block select').forEach(select => {
-    if (select.value) hasSelection = true;
-  });
- [
-  'addon_avocado',
-  'addon_pain',
-  'addon_brioche',
-  'addon_granola',
-  'addon_jus',
-  'addon_latte_normal',
-  'addon_latte_avoine',
-  'addon_latte_soja'
-].forEach(name => {
-
-    const qty = parseInt(document.querySelector(`[name="${name}"]`).value || 0);
-    if (qty > 0) hasSelection = true;
-  });
-
-  if (!hasSelection) {
-    alert("❌ Veuillez sélectionner au moins une formule ou un supplément.");
+    setTimeout(() => {
+      alert("❌ Les commandes doivent être passées la veille avant 18h. Veuillez choisir une autre date.");
+    }, 5000);
     return;
   }
 
-  console.log("Génération du panier...");
-  const date = document.querySelector('[name="delivery_date"]').value;
-  const time = document.querySelector('[name="delivery_time"]').value;
-  const phone = document.querySelector('[name="whatsapp"]').value;
-  if (!date || !time || !phone) {
-    alert("Merci de remplir la date, l'heure et le téléphone !");
+  if (isTomorrow && currentHour >= 18) {
+    setTimeout(() => {
+      alert("❌ Il est trop tard pour commander pour demain. Les commandes ferment à 18h la veille.");
+    }, 5000);
     return;
   }
 
-  let summary = `📅 Livraison: ${date} à ${time}
-📱 Contact: ${phone}
+  let summary = `📅 Livraison: ${dateInput} à ${timeInput}
+📱 Contact: ${phoneInput}
 
 `;
   let total = 0;
   const prix = { petitdej: 13, brunch: 22 };
 
   document.querySelectorAll('.formule-block').forEach(block => {
-    const select = block.querySelector('select');
-    if (select && select.name.startsWith("petitdej") && select.value) {
-      summary += `Formule Petit-déj: ${select.value} + Latte + Jus
-`;
+    const selects = block.querySelectorAll('select');
+    if (block.innerHTML.includes('Petit-déj')) {
+      const viennoiserie = selects[0]?.value || 'Non sélectionnée';
+      const lait = selects[1]?.value || 'Non sélectionné';
+      summary += `Formule Petit-déj – 13 €:
+- Viennoiserie: ${viennoiserie}
+- Latté: ${lait}
+- Jus d’orange pressé
+\n`;
       total += prix.petitdej;
-    }
-    if (select && select.name.startsWith("brunch") && select.value) {
-      summary += `Formule Brunch – Boisson chaude: ${select.value}`;
+    } else if (block.innerHTML.includes('Brunch')) {
+      const boisson = selects[0]?.value || 'Non sélectionnée';
+      summary += `Formule Brunch – 22 €:
+- Avocado toast
+- Pain, beurre et confiture
+- Granola
+- Boisson chaude: ${boisson}
+- Jus d’orange pressé
+\n`;
       total += prix.brunch;
     }
   });
 
-  if (total === 0) {
-    
-  }
-
-  
-  
   const addons = [
-  ["addon_avocado", "Avocado toast", 16.5],
-  ["addon_pain", "Pain / Beurre / Confiture", 9.5],
-  ["addon_brioche", "Omelette bacon sur pain brioché", 10],
-  ["addon_granola", "Granola", 12.5],
-  ["addon_jus", "Jus d’orange pressé bio", 6.5],
-  ["addon_cafe", "Café", 4],
-  ["addon_espresso", "Espresso", 2.5],
-  ["addon_latte_normal", "Latte (normal)", 6.5],
-  ["addon_latte_avoine", "Latte (avoine)", 6.5],
-  ["addon_latte_soja", "Latte (soja)", 6.5]
-];
+    ["addon_avocado", "Avocado toast", 16.5],
+    ["addon_pain", "Pain / Beurre / Confiture", 9.5],
+    ["addon_brioche", "Omelette bacon sur pain brioché", 10],
+    ["addon_granola", "Granola", 12.5],
+    ["addon_jus", "Jus d’orange pressé bio", 6.5],
+    ["addon_cafe", "Café", 4],
+    ["addon_espresso", "Espresso", 2.5],
+    ["addon_latte_normal", "Latte (normal)", 6.5],
+    ["addon_latte_avoine", "Latte (avoine)", 6.5],
+    ["addon_latte_soja", "Latte (soja)", 6.5]
+  ];
+
   addons.forEach(([name, label, price]) => {
     const el = document.querySelector(`[name="${name}"]`);
-if (!el) return;
-
-if (el.tagName === "INPUT") {
-  const qty = parseInt(el.value || 0);
-  if (qty > 0) {
-    summary += `${label} x${qty}\n`;
-    total += qty * price;
-  }
-}
-
-if (el.tagName === "SELECT") {
-  const val = el.value;
-  if (val) {
-    summary += `${label}: ${val} – 4 €\n`;
-    total += price;
-  }
-}
+    if (!el) return;
+    const qty = parseInt(el.value || 0);
+    if (qty > 0) {
+      summary += `${label} x${qty}\n`;
+      total += qty * price;
+    }
   });
 
-  document.getElementById('orderSummary').style.display = 'block';
-  document.getElementById('orderSummary').textContent = summary + `\n🚚 Livraison facturée 7 € via notre partenaire Delicity.` + `\n💰 Total: ${total} €`;
-}
+  summary += `\n🚚 Livraison facturée 7 € via notre partenaire Delicity.`;
+  total += 7;
+  summary += `\n💰 Total: ${total.toFixed(2)} €`;
 
+  document.getElementById('orderSummary').style.display = 'block';
+  document.getElementById('orderSummary').textContent = summary;
+}
 document.getElementById("orderForm").addEventListener("submit", function(e) {
   e.preventDefault();
   const summary = document.getElementById("orderSummary").textContent;
