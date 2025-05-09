@@ -349,6 +349,11 @@ function generateSummary() {
   const timeInput = document.querySelector('[name="delivery_time"]').value;
   const phoneInput = document.querySelector('[name="whatsapp"]').value;
 
+  if (isInvalid(dateInput)) {
+  alert("❌ Cette date n'est pas disponible. Merci de choisir un autre jour.");
+  return;
+}
+
   if (!dateInput || !timeInput || !phoneInput) {
     alert("Veuillez remplir la date, l'heure et le numéro WhatsApp.");
     return;
@@ -482,16 +487,6 @@ window.addEventListener('DOMContentLoaded', async () => {
   
   // Assicura che unavailableDatesFromSheet sia caricata
   await fetchUnavailableDates();
-
-dateInput.addEventListener('change', () => {
-  const selectedDate = dateInput.value;
-  if (!selectedDate || selectedDate.length < 10) return; // Ignora input vuoto o incompleto
-
-  if (isInvalid(selectedDate)) {
-    alert("❌ Cette date n'est pas disponible. Merci de choisir un autre jour.");
-    dateInput.value = "";
-  }
-});
 });
    </script>
 
