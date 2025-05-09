@@ -492,11 +492,15 @@ document.getElementById("orderForm").addEventListener("submit", function(e) {
   toast.style.display = 'block';
   setTimeout(() => { toast.style.display = 'none'; }, 8000);
 
-  fetch('https://neaspacedejcheckout.onrender.com/create-checkout-session', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ total, orderDetails })
+fetch('https://neaspacedejcheckout.onrender.com/create-checkout-session', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    total,
+    orderDetails,
+    delivery_date: document.querySelector('[name="delivery_date"]').value
   })
+})
   .then(res => res.json())
   .then(data => {
     if (data.url) {
