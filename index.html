@@ -446,14 +446,28 @@ const addons = [
   document.getElementById('orderSummary').style.display = 'block';
   document.getElementById('orderSummary').textContent = summary;
 }
+  function generateStripeSummary() {
+  const summary = document.getElementById("orderSummary").textContent;
+  const maxLength = 500;
+
+  if (summary.length <= maxLength) {
+    return summary;
+  }
+
+  const date = document.querySelector('[name="delivery_date"]').value;
+  const time = document.querySelector('[name="delivery_time"]').value;
+  const phone = document.querySelector('[name="whatsapp"]').value;
+  const count = document.querySelectorAll('.formule-block').length;
+
+  return `Date: ${date} ${time}, Client: ${phone}, Formules: ${count}, Total: ${summary.match(/Total: ([\d.,]+)/)?.[1]} €`;
+}
+
 document.getElementById("orderForm").addEventListener("submit", function(e) {
   e.preventDefault();
   const summary = document.getElementById("orderSummary").textContent;
   const totalMatch = summary.match(/Total: ([\d.,]+)/);
   const total = totalMatch ? parseFloat(totalMatch[1].replace(',', '.')) : 0;
- orderDetails: summary, // per email
-stripeSummary: generateStripeSummary(), // per metadata Stripe
-  
+ 
   const toast = document.getElementById('toastOverlay');
   toast.style.display = 'block';
   setTimeout(() => { toast.style.display = 'none'; }, 8000);
@@ -463,10 +477,12 @@ fetch('https://neaspacedejcheckout.onrender.com/create-checkout-session', {
   headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify({
     total,
-    orderDetails,
+    orderDetails: summary, // per email
+    stripeSummary: generateStripeSummary(), // per metadata Stripe
     delivery_date: document.querySelector('[name="delivery_date"]').value
   })
 })
+
   .then(res => res.json())
   .then(data => {
     if (data.url) {
