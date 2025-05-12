@@ -451,7 +451,8 @@ document.getElementById("orderForm").addEventListener("submit", function(e) {
   const summary = document.getElementById("orderSummary").textContent;
   const totalMatch = summary.match(/Total: ([\d.,]+)/);
   const total = totalMatch ? parseFloat(totalMatch[1].replace(',', '.')) : 0;
-  const orderDetails = summary;
+ orderDetails: summary, // per email
+stripeSummary: generateStripeSummary(), // per metadata Stripe
   
   const toast = document.getElementById('toastOverlay');
   toast.style.display = 'block';
