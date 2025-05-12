@@ -95,7 +95,7 @@ app.post('/webhook', express.raw({ type: 'application/json' }), async (req, res)
 app.use(express.json());
 
 app.post('/create-checkout-session', async (req, res) => {
-  const { total, orderDetails, delivery_date } = req.body;
+  const { total, orderDetails, delivery_date, stripeSummary } = req.body;
 if (!total || total <= 0) {
   return res.status(400).json({
     error: "❌ Le montant total ne peut pas être zéro. Veuillez sélectionner une formule ou un supplément."
