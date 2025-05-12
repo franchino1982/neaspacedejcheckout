@@ -126,10 +126,10 @@ if (!total || total <= 0) {
       success_url: 'https://franchino1982.github.io/neaspacedejcheckout/success.html',
       cancel_url: 'https://franchino1982.github.io/neaspacedejcheckout/cancel.html',
       metadata: {
-        orderDetails,
-        total: total.toFixed(2),
-        delivery_date
-      }
+  stripeSummary,
+  total: total.toFixed(2),
+  delivery_date
+}
     });
 
     res.json({ url: session.url });
